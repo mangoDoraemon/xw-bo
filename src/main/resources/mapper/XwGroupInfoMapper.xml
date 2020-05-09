@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.asiainfo.xwbo.xwbo.dao.base.XwGroupInfoDao" >
+    <resultMap id="BaseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo" >
+        <result column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="credit_code" property="creditCode" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="prov_id" property="provId" jdbcType="VARCHAR" />
+        <result column="city_id" property="cityId" jdbcType="VARCHAR" />
+        <result column="county_id" property="countyId" jdbcType="VARCHAR" />
+        <result column="area_id" property="areaId" jdbcType="VARCHAR" />
+        <result column="micro_id" property="microId" jdbcType="VARCHAR" />
+        <result column="grid_id" property="gridId" jdbcType="VARCHAR" />
+        <result column="first_class" property="firstClass" jdbcType="INTEGER" />
+        <result column="second_class" property="secondClass" jdbcType="INTEGER" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="management_state" property="managementState" jdbcType="INTEGER" />
+        <result column="handle_state" property="handleState" jdbcType="INTEGER" />
+        <result column="relation_group_id" property="relationGroupId" jdbcType="VARCHAR" />
+        <result column="lng" property="lng" jdbcType="VARCHAR" />
+        <result column="lat" property="lat" jdbcType="VARCHAR" />
+        <result column="last_handle_user" property="lastHandleUser" jdbcType="VARCHAR" />
+        <result column="last_handel_time" property="lastHandelTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="last_updator" property="lastUpdator" jdbcType="VARCHAR" />
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <select id="qryAll" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo" resultMap="BaseResultMap">
+        SELECT * FROM XW_GROUP_INFO
+        <where>
+            <if test="null != handleState">
+                and HANDLE_STATE = #{handleState}
+            </if>
+            <if test="null != firstClass">
+                and first_class = #{firstClass}
+            </if>
+            <if test="null != secondClass">
+                and second_class = #{secondClass}
+            </if>
+            <if test="null != microIdList and microIdList.size = 0">
+                AND MICRO_ID in
+                <foreach collection="microIdList" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="null != leftBottomLng and  '' != leftBottomLng and null != rightTopLng and '' != rightTopLng">
+                and (CONVERT(lng, decimal(20,17)) between CONVERT(#{leftBottomLng}, decimal(20,17))  and CONVERT(#{rightTopLng}, decimal(20,17)) )
+            </if>
+            <if test="null != leftBottomLat and  '' != leftBottomLat and null != rightTopLat and '' != rightTopLat">
+                and (CONVERT(lat, decimal(20,18)) between CONVERT(#{leftBottomLat}, decimal(20,18))  and CONVERT(#{rightTopLat}, decimal(20,18)) )
+            </if>
+        </where>
+    </select>
+
+</mapper>
