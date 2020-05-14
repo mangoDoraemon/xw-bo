@@ -1,4 +1,4 @@
-package com.asiainfo.xwbo.xwbo.model.po;
+package com.asiainfo.xwbo.xwbo.model.vo;
 
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Table;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Table("xw_group_management_state_info")
 @Data
-public class XwGroupManagementStateInfoPo {
+public class XwGroupManagementStateInfoVo {
     private Integer id;
     private String message;
 }

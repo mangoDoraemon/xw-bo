@@ -1,7 +1,6 @@
 package com.asiainfo.xwbo.xwbo.model.po;
 
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Table;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
@@ -18,10 +17,10 @@ public class XwGroupInfoPo {
     private String name;
     private String creditCode;
     private String address;
+    private String roomNo;
     private String provId;
     private String cityId;
     private String countyId;
-    private String areaId;
     private String gridId;
     private String microId;
     private Integer firstClass;

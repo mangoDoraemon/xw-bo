@@ -32,11 +32,11 @@
     </resultMap>
 
     <select id="qryUserInfo" parameterType="java.lang.String" resultMap="BaseResultMap">
-        SELECT * FROM XW_USER_INFO WHERE USER_ID = #{userId}
+        SELECT * FROM xw_user_info WHERE USER_ID = #{userId}
     </select>
 
     <select id="qryUserAreaInfo" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT MICRO_ID FROM XW_USER_AREA_INFO WHERE USER_ID = #{userId}
+        SELECT MICRO_ID FROM xw_user_area_info WHERE USER_ID = #{userId}
     </select>
 
 </mapper>

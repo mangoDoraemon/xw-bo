@@ -12,9 +12,9 @@ import java.util.Objects;
 @Table("xw_industry_class_info")
 @Data
 public class XwIndustryClassInfoPo {
-    private Long id;
+    private Integer id;
     private String name;
-    private Long pid;
+    private Integer pid;
     private Integer level;
 
     @Override

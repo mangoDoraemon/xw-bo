@@ -1,7 +1,6 @@
 package com.asiainfo.xwbo.xwbo.dao.base;
 
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
-import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 

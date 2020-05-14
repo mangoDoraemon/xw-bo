@@ -8,5 +8,5 @@ import lombok.Data;
  */
 @Data
 public class QryXwGroupInfoSo {
-    private String groupId;
+    private Long groupId;
 }

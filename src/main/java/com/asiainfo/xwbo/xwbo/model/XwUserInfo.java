@@ -1,38 +1,34 @@
-package com.asiainfo.xwbo.xwbo.model.po;
+package com.asiainfo.xwbo.xwbo.model;
 
-import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Table;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * @author jiahao jin
- * @create 2020-05-06 16:14
+ * @create 2020-05-11 18:02
  */
 @Data
-@Table("xw_user_info")
-public class XwUserInfoPo {
-
+public class XwUserInfo {
     private String userId;
     private String userCode;
-    private String userPassword;
     private String userName;
     private String mobilePhone;
     private String emailAddress;
     private String oaCode;
-
     private Integer roleId;
+    private String role;
     private String areaCode;
     private Integer areaLevel;
-
     private String provId;
+    private String provName;
     private String cityId;
+    private String cityName;
     private String countyId;
+    private String countyName;
     private String gridId;
-    private String microId;
-
-    private String creator;
-    private Date createTime;
-    private String lastUpdator;
-    private Date lastUpdateTime;
+    private String gridName;
+    private String microIds;
+    private List<XwAreaInfo> microIdList;
+    private String token;
 }

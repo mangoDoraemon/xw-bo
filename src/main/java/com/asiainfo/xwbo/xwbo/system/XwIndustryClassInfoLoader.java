@@ -27,11 +27,11 @@ public class XwIndustryClassInfoLoader {
     @Resource
     private ICommonExtDao commonExtDao;
 
-    private Map<Long, XwIndustryClassInfoPo> keyMap = new ConcurrentHashMap<>();
+    private Map<Integer, XwIndustryClassInfoPo> keyMap = new ConcurrentHashMap<>();
 
     private List<XwIndustryClassInfoVo> headerList = new CopyOnWriteArrayList<>();
 
-    private Map<Long, XwIndustryClassInfoVo> indexMap = new ConcurrentHashMap<>();
+    private Map<Integer, XwIndustryClassInfoVo> indexMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -43,24 +43,23 @@ public class XwIndustryClassInfoLoader {
                 .setOrder("pid", "asc")
                 .setOrder("level", "asc"));
         if(null != xwindustryClassInfoPoList && xwindustryClassInfoPoList.size() > 0) {
-//            keyMap = xwindustryClassInfoPoList.stream().collect(Collectors.toMap(XwIndustryClassInfoPo::getId, industryClassInfoPo -> industryClassInfoPo));
             for(XwIndustryClassInfoPo po : xwindustryClassInfoPoList) {
-                Long id = po.getId();
+                Integer id = po.getId();
                 keyMap.put(id, po);
 
-                XwIndustryClassInfoVo xwIndustryClassInfoDto = xwIndustryClassInfoPoToDto(po);
-                indexMap.put(id, xwIndustryClassInfoDto);
-                Long pid = po.getPid();
+                XwIndustryClassInfoVo xwIndustryClassInfoVo = xwIndustryClassInfoPoToVo(po);
+                indexMap.put(id, xwIndustryClassInfoVo);
+                Integer pid = po.getPid();
                 if(null == pid) {
-                    headerList.add(xwIndustryClassInfoDto);
+                    headerList.add(xwIndustryClassInfoVo);
 
                 }else {
-                    XwIndustryClassInfoVo pDto = indexMap.get(pid);
-                    if(null == pDto.getChild()) {
-                        pDto.setChild(new ArrayList<>());
+                    XwIndustryClassInfoVo pVo = indexMap.get(pid);
+                    if(null == pVo.getChild()) {
+                        pVo.setChild(new ArrayList<>());
                     }
-                    List<XwIndustryClassInfoVo> child = pDto.getChild();
-                    child.add(xwIndustryClassInfoDto);
+                    List<XwIndustryClassInfoVo> child = pVo.getChild();
+                    child.add(xwIndustryClassInfoVo);
                 }
             }
             log.info("初始化行业分类： "+JSONObject.toJSONString(keyMap));
@@ -71,7 +70,10 @@ public class XwIndustryClassInfoLoader {
 
     }
 
-    public XwIndustryClassInfoPo get(Long id) {
+    public XwIndustryClassInfoPo get(Integer id) {
+        if(null == id) {
+            return null;
+        }
         XwIndustryClassInfoPo po = keyMap.get(id);
         if(null == po) {
             update();
@@ -83,7 +85,7 @@ public class XwIndustryClassInfoLoader {
         init();
     }
 
-    public Map<Long, XwIndustryClassInfoPo> getMap() {
+    public Map<Integer, XwIndustryClassInfoPo> getMap() {
         return keyMap;
     }
 
@@ -91,11 +93,11 @@ public class XwIndustryClassInfoLoader {
         return headerList;
     }
 
-    private XwIndustryClassInfoVo xwIndustryClassInfoPoToDto(XwIndustryClassInfoPo xwIndustryClassInfoPo) {
-        XwIndustryClassInfoVo xwIndustryClassInfoDto = new XwIndustryClassInfoVo();
-        xwIndustryClassInfoDto.setId(xwIndustryClassInfoPo.getId());
-        xwIndustryClassInfoDto.setName(xwIndustryClassInfoPo.getName());
-        return xwIndustryClassInfoDto;
+    private XwIndustryClassInfoVo xwIndustryClassInfoPoToVo(XwIndustryClassInfoPo xwIndustryClassInfoPo) {
+        XwIndustryClassInfoVo xwIndustryClassInfoVo = new XwIndustryClassInfoVo();
+        xwIndustryClassInfoVo.setId(xwIndustryClassInfoPo.getId());
+        xwIndustryClassInfoVo.setName(xwIndustryClassInfoPo.getName());
+        return xwIndustryClassInfoVo;
     }
 }
 

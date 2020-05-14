@@ -1,22 +1,19 @@
 package com.asiainfo.xwbo.xwbo.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import com.asiainfo.xwbo.xwbo.dao.base.XwGroupInfoDao;
-import com.asiainfo.xwbo.xwbo.dao.base.XwUserInfoDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
-import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwIndustryClassInfoVo;
-import com.asiainfo.xwbo.xwbo.model.vo.PageResultVo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwGroupInfoVo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwGroupMemberInfoVo;
+import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
+import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
+import com.asiainfo.xwbo.xwbo.model.po.XwGroupHandleStateInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwGroupMemberInfoPo;
-import com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.SyncXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.XwGroupMemberInfoSo;
+import com.asiainfo.xwbo.xwbo.model.so.*;
+import com.asiainfo.xwbo.xwbo.model.vo.*;
 import com.asiainfo.xwbo.xwbo.service.XwGroupService;
+import com.asiainfo.xwbo.xwbo.service.XwUserService;
+import com.asiainfo.xwbo.xwbo.system.XwGroupHandleStateInfoLoader;
+import com.asiainfo.xwbo.xwbo.system.XwGroupManagementStateInfoLoader;
 import com.asiainfo.xwbo.xwbo.system.XwIndustryClassInfoLoader;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
 import com.asiainfo.xwbo.xwbo.utils.DistanceUtil;
@@ -24,6 +21,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +42,8 @@ public class XwGroupServiceImpl implements XwGroupService {
     @Resource
     private XwGroupInfoDao xwGroupDao;
 
-    @Resource
-    private XwUserInfoDao xwUserInfoDao;
+    @Autowired
+    private XwUserService xwUserService;
 
     @Resource
     private ICommonExtDao commonExtDao;
@@ -52,38 +51,49 @@ public class XwGroupServiceImpl implements XwGroupService {
     @Resource
     private XwIndustryClassInfoLoader xwIndustryClassInfoLoader;
 
+    @Resource
+    private XwGroupHandleStateInfoLoader xwGroupHandleStateInfoLoader;
+
+    @Resource
+    private XwGroupManagementStateInfoLoader xwGroupManagementStateInfoLoader;
+
+
     @Override
     public PageResultVo qryAll(QryPeripheryXwGroupInfoSo qryPeripheryXwGroupInfoSo) throws Exception {
         PageResultVo pageResultVo = new PageResultVo();
         String userId = qryPeripheryXwGroupInfoSo.getUserId();
 
         //人员信息
-        XwUserInfoPo xwUserInfoPo = commonExtDao.queryForObject(SqlBuilder.build(XwUserInfoPo.class).eq("user_id", userId));
-        if(null == xwUserInfoPo) {
-            throw new Exception("无该人员信息");
-        }
-        Integer roleId = xwUserInfoPo.getRoleId();
-        long total;
+        XwUserInfo xwUserInfo = xwUserService.qryInfo(qryPeripheryXwGroupInfoSo);
+        Integer roleId = xwUserInfo.getRoleId();
         String pageNum = qryPeripheryXwGroupInfoSo.getPageNum();
         String pageSize = qryPeripheryXwGroupInfoSo.getPageSize();
         List<XwGroupInfoPo> xwGroupInfoPoList;
-        if(roleId.intValue() == Constant.XW_USER_ROLE_ID.ZHIXIAORENYUAN.intValue()) {
+        long total;
+        if(roleId.intValue() == Constant.XW_USER_ROLE.ZHIXIAORENYUAN.intValue()) {
             //直销人员
-            String microIds = xwUserInfoPo.getMicroId();
+            String microIds = xwUserInfo.getMicroIds();
             if(StringUtils.isBlank(microIds)) {
                 throw new Exception("该用户没有所属微格");
             }
-            List<String> microIdList  = xwUserInfoDao.qryUserAreaInfo(userId);
-            qryPeripheryXwGroupInfoSo.setMicroIdList(microIdList);
-        }else if (roleId.intValue() == Constant.XW_USER_ROLE_ID.ZHIXIAORENYUAN.intValue()) {
-            //负责人
-            String areaCode = xwUserInfoPo.getAreaCode();
-        }else if (roleId.intValue() == Constant.XW_USER_ROLE_ID.WANGGEZHANG.intValue()) {
+
+            List<String> qryMicroIdList = qryPeripheryXwGroupInfoSo.getMicroIdList();
+            if(null == qryMicroIdList) {
+                List<String> microIdList  = Arrays.asList(microIds.split(","));
+                qryPeripheryXwGroupInfoSo.setMicroIdList(microIdList);
+            }
+        }else if (roleId.intValue() == Constant.XW_USER_ROLE.SUPERINTENDENT.intValue() || roleId.intValue() == Constant.XW_USER_ROLE.WANGGEDUDAO.intValue()) {
+            //负责人 或者网格督导
+            String areaCode = xwUserInfo.getAreaCode();
+            Integer areaLevel = xwUserInfo.getAreaLevel();
+            qryPeripheryXwGroupInfoSo.setAreaId(areaCode);
+            qryPeripheryXwGroupInfoSo.setAreaLevel(areaLevel);
+
+        }else if (roleId.intValue() == Constant.XW_USER_ROLE.WANGGEZHANG.intValue()) {
             //网格长
-            String gridId = xwUserInfoPo.getAreaId();
-        }else if (roleId.intValue() == Constant.XW_USER_ROLE_ID.WANGGEDUTAO.intValue()) {
-            //负责人
-            String areaCode = xwUserInfoPo.getAreaCode();
+            String gridId = xwUserInfo.getGridId();
+            qryPeripheryXwGroupInfoSo.setAreaLevel(Constant.XW_AREA_LEVEL.GRID);
+            qryPeripheryXwGroupInfoSo.setAreaId(gridId);
         }
 
         List<XwGroupInfoVo> xwGroupInfoVoList = new ArrayList<>();
@@ -95,60 +105,36 @@ public class XwGroupServiceImpl implements XwGroupService {
             xwGroupInfoPoList = xwGroupDao.qryAll(qryPeripheryXwGroupInfoSo);
             total = xwGroupInfoPoList.size();
         }
-        xwGroupInfoPoList.forEach(po -> {
-            XwGroupInfoVo xwGroupInfoVo = xwGroupInfoPoToVo(po);
-            double distance = DistanceUtil.getDistance(qryPeripheryXwGroupInfoSo.getCurrentLng(), qryPeripheryXwGroupInfoSo.getCurrentLat(), po.getLng(), po.getLat());
-            xwGroupInfoVo.setDistance(distance);
-            xwGroupInfoVoList.add(xwGroupInfoVo);
-        });
 
-        pageResultVo.setList(
-            xwGroupInfoVoList.stream().sorted(Comparator.comparing(XwGroupInfoVo::getDistance)).collect(Collectors.toList())
-        );
+        if(StringUtils.isBlank(qryPeripheryXwGroupInfoSo.getCurrentLng()) || StringUtils.isBlank(qryPeripheryXwGroupInfoSo.getCurrentLat())) {
+            xwGroupInfoPoList.forEach(po -> {
+                XwGroupInfoVo xwGroupInfoVo = xwGroupInfoPoToVo(po);
+                xwGroupInfoVoList.add(xwGroupInfoVo);
+            });
+            pageResultVo.setList(xwGroupInfoVoList);
+        }else  {
+            xwGroupInfoPoList.forEach(po -> {
+                XwGroupInfoVo xwGroupInfoVo = xwGroupInfoPoToVo(po);
+                Long distance = DistanceUtil.getDistance(qryPeripheryXwGroupInfoSo.getCurrentLng(), qryPeripheryXwGroupInfoSo.getCurrentLat(), po.getLng(), po.getLat());
+                xwGroupInfoVo.setDistance(distance);
+                xwGroupInfoVoList.add(xwGroupInfoVo);
+            });
+            pageResultVo.setList(
+                    xwGroupInfoVoList.stream().filter(po -> po.getDistance() != null).sorted(Comparator.comparing(XwGroupInfoVo::getDistance)).collect(Collectors.toList())
+            );
+
+        }
         pageResultVo.setTotal(total);
+
+
         return pageResultVo;
 
-
-
-//        List<String> microIdList  = xwUserInfoDao.qryUserAreaInfo(userId);
-//        System.out.println("microIdList1: "+ microIdList);
-//        if(null == microIdList || microIdList.size() == 0) {
-//            throw new Exception("该用户没有所属微格");
-//        }
-//
-//        qryPeripheryXwGroupInfoSo.setMicroIdList(microIdList);
-//        String pageNum = qryPeripheryXwGroupInfoSo.getPageNum();
-//        String pageSize = qryPeripheryXwGroupInfoSo.getPageSize();
-//        List<XwGroupInfoPo> xwGroupInfoPoList;
-//        if(StringUtils.isNotBlank(pageNum) && StringUtils.isNotBlank(pageSize)) {
-//            Page pageInfo = PageHelper.startPage(Integer.valueOf(pageNum), Integer.valueOf(pageSize));
-//            xwGroupInfoPoList = xwGroupDao.qryAll(qryPeripheryXwGroupInfoSo);
-//            total = pageInfo.getTotal();
-//        }else {
-//            xwGroupInfoPoList = xwGroupDao.qryAll(qryPeripheryXwGroupInfoSo);
-//            total = xwGroupInfoPoList.size();
-//        }
-//        System.out.println(total);
-//        List<XwGroupInfoVo> xwGroupInfoVoList = new ArrayList<>();
-//        xwGroupInfoPoList.forEach(po -> {
-//            XwGroupInfoVo xwGroupInfoVo = xwGroupInfoPoToVo(po);
-//            double distance = DistanceUtil.getDistance(qryPeripheryXwGroupInfoSo.getCurrentLng(), qryPeripheryXwGroupInfoSo.getCurrentLat(), po.getLng(), po.getLat());
-//            xwGroupInfoVo.setDistance(distance);
-//            xwGroupInfoVoList.add(xwGroupInfoVo);
-//        });
-//
-//        pageResultVo.setList(
-//            xwGroupInfoVoList.stream().sorted(Comparator.comparing(XwGroupInfoVo::getDistance)).collect(Collectors.toList())
-//        );
-//        pageResultVo.setTotal(total);
-//        return pageResultVo;
-        return null;
     }
 
     @Override
     public XwGroupInfoVo qryInfo(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception {
-        String groupId = qryXwGroupInfoSo.getGroupId();
-        XwGroupInfoPo xwGroupInfoPo = commonExtDao.queryForObject(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId));
+        Long groupId = qryXwGroupInfoSo.getGroupId();
+        XwGroupInfoPo xwGroupInfoPo = qryGroupInfoPo(groupId);
         XwGroupInfoVo xwGroupInfoVo = xwGroupInfoPoToVo(xwGroupInfoPo);
         return xwGroupInfoVo;
     }
@@ -157,7 +143,10 @@ public class XwGroupServiceImpl implements XwGroupService {
     public PageResultVo qryMember(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception {
         PageResultVo pageResultVo = new PageResultVo();
         List<XwGroupMemberInfoVo> xwGroupMemberInfoVoList = new ArrayList<>();
-        String groupId = qryXwGroupInfoSo.getGroupId();
+        Long groupId = qryXwGroupInfoSo.getGroupId();
+        if(null == groupId) {
+            throw new Exception("未传集团信息");
+        }
         List<XwGroupMemberInfoPo> xwGroupMemberInfoPoList = commonExtDao.query(SqlBuilder.build(XwGroupMemberInfoPo.class).eq("group_id", groupId));
 
         xwGroupMemberInfoPoList.forEach(po -> {
@@ -179,19 +168,15 @@ public class XwGroupServiceImpl implements XwGroupService {
             //获取id
 
             xwGroupInfoPo = syncXwGroupInfoSoToPo(xwGroupInfoPo, syncXwGroupInfoSo);
+            xwGroupInfoPo.setHandleState(syncXwGroupInfoSo.getHandleState());
             groupId = commonExtDao.saveReturnKey(SqlBuilder.build(XwGroupInfoPo.class), xwGroupInfoPo);
 
             syncXwGroupInfoSo.setId(groupId);
 
         }else {
             //修改
-            xwGroupInfoPo = commonExtDao.queryForObject(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId));
-            if(null == xwGroupInfoPo) {
-                throw new Exception("无该集团信息");
-            }
-            System.out.println("修改前"+JSONObject.toJSONString(xwGroupInfoPo));
+            xwGroupInfoPo = qryGroupInfoPo(groupId);
             syncXwGroupInfoSoToPo(xwGroupInfoPo, syncXwGroupInfoSo);
-            System.out.println("修改后"+JSONObject.toJSONString(xwGroupInfoPo));
             xwGroupInfoPo.setLastUpdator(userId);
             xwGroupInfoPo.setLastUpdateTime(new Date());
             commonExtDao.update(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId), xwGroupInfoPo);
@@ -215,10 +200,50 @@ public class XwGroupServiceImpl implements XwGroupService {
     }
 
     @Override
+    public void changeHandleState(UpdateHandelStateSo updateHandelStateSo) throws Exception {
+        Long groupId = updateHandelStateSo.getGroupId();
+        XwGroupInfoPo xwGroupInfoPo = qryGroupInfoPo(groupId);
+        xwGroupInfoPo.setHandleState(updateHandelStateSo.getHandleState());
+        xwGroupInfoPo.setLastHandleUser(updateHandelStateSo.getUserId());
+        xwGroupInfoPo.setLastHandelTime(new Date());
+        commonExtDao.update(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId), xwGroupInfoPo);
+    }
+
+    private XwGroupInfoPo qryGroupInfoPo(Long groupId) throws Exception {
+        XwGroupInfoPo xwGroupInfoPo = commonExtDao.queryForObject(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId));
+        if(null == xwGroupInfoPo) {
+            throw new Exception("无该集团信息");
+        }
+        return xwGroupInfoPo;
+    }
+
+    @Override
+    public List<XwGroupProductInfoSo> qryProductInfo(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception {
+
+        return xwGroupDao.qryProductInfo(qryXwGroupInfoSo);
+    }
+
+    @Override
+    public List<XwGroupCaseItemInfoSo> qryCaseItemInfo(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception {
+
+        return xwGroupDao.qryCaseItemInfo(qryXwGroupInfoSo);
+    }
+
+    @Override
     public List<XwIndustryClassInfoVo> industryClass() throws Exception {
         return xwIndustryClassInfoLoader.getHeaderList();
     }
 
+    @Override
+    public List<XwGroupManagementStateInfoVo> managementState() {
+
+        return xwGroupManagementStateInfoLoader.getList();
+    }
+
+    @Override
+    public List<XwGroupHandleStateInfoVo> handleState() {
+        return xwGroupHandleStateInfoLoader.getList();
+    }
 
 
     private XwGroupMemberInfoPo xwGroupMemberInfoSoToPo(XwGroupMemberInfoSo xwGroupMemberInfoSo, SyncXwGroupInfoSo syncXwGroupInfoSo) {
@@ -245,17 +270,17 @@ public class XwGroupServiceImpl implements XwGroupService {
         }
         xwGroupInfoPo.setName(syncXwGroupInfoSo.getName());
         xwGroupInfoPo.setAddress(syncXwGroupInfoSo.getAddress());
+        xwGroupInfoPo.setRoomNo(syncXwGroupInfoSo.getRoomNo());
         xwGroupInfoPo.setProvId(syncXwGroupInfoSo.getProvId());
         xwGroupInfoPo.setCityId(syncXwGroupInfoSo.getCityId());
         xwGroupInfoPo.setCountyId(syncXwGroupInfoSo.getCountyId());
-        xwGroupInfoPo.setAreaId(syncXwGroupInfoSo.getAreaId());
         xwGroupInfoPo.setGridId(syncXwGroupInfoSo.getGridId());
         xwGroupInfoPo.setMicroId(syncXwGroupInfoSo.getMicroId());
-        xwGroupInfoPo.setFirstClass(syncXwGroupInfoSo.getFisrtClass());
+        xwGroupInfoPo.setFirstClass(syncXwGroupInfoSo.getFirstClass());
         xwGroupInfoPo.setSecondClass(syncXwGroupInfoSo.getSecondClass());
         xwGroupInfoPo.setManagementState(syncXwGroupInfoSo.getManagementState());
         xwGroupInfoPo.setCreditCode(syncXwGroupInfoSo.getCreditCode());
-        xwGroupInfoPo.setHandleState(syncXwGroupInfoSo.getHandleState());
+//        xwGroupInfoPo.setHandleState(syncXwGroupInfoSo.getHandleState());
         xwGroupInfoPo.setRelationGroupId(syncXwGroupInfoSo.getRelationGroupId());
         xwGroupInfoPo.setPhone(syncXwGroupInfoSo.getPhone());
         xwGroupInfoPo.setLng(syncXwGroupInfoSo.getLng());
@@ -273,22 +298,41 @@ public class XwGroupServiceImpl implements XwGroupService {
                 .name(xwGroupInfoPo.getName())
                 .creditCode(xwGroupInfoPo.getCreditCode())
                 .address(xwGroupInfoPo.getAddress())
+                .roomNo(xwGroupInfoPo.getRoomNo())
                 .provId(xwGroupInfoPo.getProvId())
                 .cityId(xwGroupInfoPo.getCityId())
                 .countyId(xwGroupInfoPo.getCountyId())
-                .areaId(xwGroupInfoPo.getAreaId())
                 .gridId(xwGroupInfoPo.getGridId())
                 .microId(xwGroupInfoPo.getMicroId())
                 .firstClass(xwGroupInfoPo.getFirstClass())
+                .firstClassName(xwIndustryClassInfoLoader.get(xwGroupInfoPo.getFirstClass())==null? null:xwIndustryClassInfoLoader.get(xwGroupInfoPo.getFirstClass()).getName())
                 .secondClass(xwGroupInfoPo.getSecondClass())
+                .secondClassName(xwIndustryClassInfoLoader.get(xwGroupInfoPo.getSecondClass())==null? null: xwIndustryClassInfoLoader.get(xwGroupInfoPo.getSecondClass()).getName())
                 .phone(xwGroupInfoPo.getPhone())
-                .managementState(Constant.XW_GROUP_MANAGEMENT_STATE.MAPPER.get(xwGroupInfoPo.getManagementState()))
-                .handleState(Constant.XW_GROUP_HANDLE_STATE.MAPPER.get(xwGroupInfoPo.getHandleState()))
+                .managementState(xwGroupInfoPo.getManagementState())
+                .managementStateMessage(xwGroupManagementStateInfoLoader.get(xwGroupInfoPo.getManagementState()) ==null? null: xwGroupManagementStateInfoLoader.get(xwGroupInfoPo.getManagementState()).getMessage())
+                .handleState(xwGroupInfoPo.getHandleState())
+                .handleStateMessage(xwGroupHandleStateInfoLoader.get(xwGroupInfoPo.getHandleState()) ==null? null: xwGroupHandleStateInfoLoader.get(xwGroupInfoPo.getHandleState()).getMessage())
                 .relationGroupId(xwGroupInfoPo.getRelationGroupId())
                 .lng(xwGroupInfoPo.getLng())
                 .lat(xwGroupInfoPo.getLat())
                 .lastHandleUser(xwGroupInfoPo.getLastHandleUser())
-                .lastHandelTime(xwGroupInfoPo.getLastHandelTime()).build();
+                .lastHandelTime(new DateTime(xwGroupInfoPo.getLastHandelTime()).toString("yyyy-MM-dd HH:mm:ss"))
+                .createTime(new DateTime(xwGroupInfoPo.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss")).build();
+        List<String> areaIdList = new ArrayList<>();
+        areaIdList.add(xwGroupInfoPo.getProvId());
+        areaIdList.add(xwGroupInfoPo.getCityId());
+        areaIdList.add(xwGroupInfoPo.getCountyId());
+        areaIdList.add(xwGroupInfoPo.getGridId());
+        areaIdList.add(xwGroupInfoPo.getMicroId());
+        List<XwAreaInfoPo> xwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).in("area_id", areaIdList));
+        Map<String, String> areaInfoMap = new HashMap<>();
+        areaInfoMap = xwAreaInfoPoList.stream().collect(Collectors.toMap(XwAreaInfoPo::getAreaId, po -> po.getAreaName()));
+        xwGroupInfoVo.setProvName(areaInfoMap.getOrDefault(xwGroupInfoPo.getProvId(), "浙江省"));
+        xwGroupInfoVo.setCityName(areaInfoMap.getOrDefault(xwGroupInfoPo.getCityId(), "未知"));
+        xwGroupInfoVo.setCountyName(areaInfoMap.getOrDefault(xwGroupInfoPo.getCountyId(), "未知"));
+        xwGroupInfoVo.setGridName(areaInfoMap.getOrDefault(xwGroupInfoPo.getGridId(), "未知"));
+        xwGroupInfoVo.setMicroName(areaInfoMap.getOrDefault(xwGroupInfoPo.getMicroId(), "未知"));
         return xwGroupInfoVo;
     }
 }

@@ -1,7 +1,11 @@
 package com.asiainfo.xwbo.xwbo.controller;
 
+import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * @author jiahao jin
@@ -10,9 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/health")
 public class HealthController {
+    @Resource
+    private ICommonExtDao commonExtDao;
 
     @RequestMapping("")
-    public Object health(){
+    public Object health() {
+
         return "health";
     }
 }

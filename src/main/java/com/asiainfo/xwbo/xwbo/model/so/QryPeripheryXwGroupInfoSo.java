@@ -2,6 +2,7 @@ package com.asiainfo.xwbo.xwbo.model.so;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 public class QryPeripheryXwGroupInfoSo extends XwUserInfoSo {
     private Integer handleState;
+    private Integer managementState;
     private Integer firstClass;
     private Integer secondClass;
     private List<String> microIdList;
@@ -22,5 +24,10 @@ public class QryPeripheryXwGroupInfoSo extends XwUserInfoSo {
     private String rightTopLat;
     private String pageNum;
     private String pageSize;
+    private String keywords;
+    private String areaId;
+    private Integer areaLevel;
+    private Date beginCreateDate;
+    private Date endCreateDate;
 
 }

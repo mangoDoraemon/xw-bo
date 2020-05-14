@@ -16,22 +16,32 @@ public class XwGroupInfoVo {
     private String name;
     private String creditCode;
     private String address;
+    private String roomNo;
     private String provId;
+    private String provName;
     private String cityId;
+    private String cityName;
     private String countyId;
-    private String areaId;
+    private String countyName;
     private String gridId;
+    private String gridName;
     private String microId;
+    private String microName;
     private Integer firstClass;
     private Integer secondClass;
+    private String firstClassName;
+    private String secondClassName;
     private String phone;
-    private String managementState;
-    private String handleState;
+    private Integer managementState;
+    private Integer handleState;
+    private String managementStateMessage;
+    private String handleStateMessage;
     private String relationGroupId;
     private String lng;
     private String lat;
-    private Double distance;
+    private Long distance;
     private String lastHandleUser;
-    private Date lastHandelTime;
+    private String lastHandelTime;
+    private String createTime;
 
 }

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.asiainfo.xwbo.xwbo.dao.base.XwGroupInfoDao" >
-    <resultMap id="BaseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo" >
+    <resultMap id="baseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo" >
         <result column="id" property="id" jdbcType="BIGINT" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="credit_code" property="creditCode" jdbcType="VARCHAR" />
         <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="room_no" property="roomNo" jdbcType="VARCHAR" />
         <result column="prov_id" property="provId" jdbcType="VARCHAR" />
         <result column="city_id" property="cityId" jdbcType="VARCHAR" />
         <result column="county_id" property="countyId" jdbcType="VARCHAR" />
@@ -28,11 +29,35 @@
         <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
-    <select id="qryAll" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo" resultMap="BaseResultMap">
-        SELECT * FROM XW_GROUP_INFO
+    <resultMap id="groupProductResultMap" type="com.asiainfo.xwbo.xwbo.model.so.XwGroupProductInfoSo">
+        <result column="group_id" property="groupId" jdbcType="BIGINT" />
+        <result column="product_id" property="productId" jdbcType="INTEGER" />
+        <result column="product_name" property="productName" jdbcType="VARCHAR" />
+        <result column="product_type" property="productType" jdbcType="VARCHAR" />
+        <result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="groupItemResultMap" type="com.asiainfo.xwbo.xwbo.model.so.XwGroupCaseItemInfoSo">
+        <result column="group_id" property="groupId" jdbcType="BIGINT" />
+        <result column="item_id" property="itemId" jdbcType="INTEGER" />
+        <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="case_type" property="caseType" jdbcType="VARCHAR" />
+        <result column="trade_type" property="tradeType" jdbcType="VARCHAR" />
+        <result column="con" property="con" jdbcType="VARCHAR" />
+        <result column="create_date" property="createDate" jdbcType="DATE" />
+        <result column="creator" property="creator" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="qryAll" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo" resultMap="baseResultMap">
+        SELECT * FROM xw_group_info
         <where>
             <if test="null != handleState">
                 and HANDLE_STATE = #{handleState}
+            </if>
+
+            <if test="null != managementState">
+                and MANAGEMENT_STATE = #{managementState}
             </if>
             <if test="null != firstClass">
                 and first_class = #{firstClass}
@@ -40,13 +65,36 @@
             <if test="null != secondClass">
                 and second_class = #{secondClass}
             </if>
-            <if test="null != microIdList and microIdList.size = 0">
+            <if test="null != keywords and '' != keywords">
+                and name like concat('%', #{keywords}, '%')
+            </if>
+
+            <if test="null != beginCreateDate">
+                and create_time &gt;=  #{beginCreateDate}
+            </if>
+            <if test="null != endCreateDate">
+                and create_time &lt;=  #{endCreateDate}
+            </if>
+            <if test="null != microIdList and microIdList.size != 0">
                 AND MICRO_ID in
                 <foreach collection="microIdList" index="index" item="item" open="(" separator="," close=")">
                     #{item}
                 </foreach>
             </if>
-
+            <if test="null != areaLevel">
+                <if test="1 == areaLevel">
+                    and prov_id = #{areaId}
+                </if>
+                <if test="2 == areaLevel">
+                    and city_id = #{areaId}
+                </if>
+                <if test="3 == areaLevel">
+                    and county_id = #{areaId}
+                </if>
+                <if test="4 == areaLevel">
+                    and grid_id = #{areaId}
+                </if>
+            </if>
             <if test="null != leftBottomLng and  '' != leftBottomLng and null != rightTopLng and '' != rightTopLng">
                 and (CONVERT(lng, decimal(20,17)) between CONVERT(#{leftBottomLng}, decimal(20,17))  and CONVERT(#{rightTopLng}, decimal(20,17)) )
             </if>
@@ -54,6 +102,34 @@
                 and (CONVERT(lat, decimal(20,18)) between CONVERT(#{leftBottomLat}, decimal(20,18))  and CONVERT(#{rightTopLat}, decimal(20,18)) )
             </if>
         </where>
+    </select>
+
+    <select id="qryProductInfo" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo" resultMap="groupProductResultMap">
+        select
+               a.id as group_id,
+               c.id as product_id,
+               c.product_name,
+               c.product_type,
+               c.product_desc
+        from xw_group_info a, xw_group_product_info b, xw_product_info c
+        where
+              a.id = b.group_id and b.product_id = c.id and a.id = #{groupId}
+    </select>
+
+    <select id="qryCaseItemInfo" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo" resultMap="groupItemResultMap">
+        select
+            a.id as group_id,
+            c.id as item_id,
+            area_name,
+            title,
+            case_type,
+            trade_type,
+            con,
+            c.create_date,
+            c.creator
+        from xw_group_info a, xw_group_case_item_info b, xw_case_item_info c
+        where
+            a.id = b.group_id and b.item_id = c.id and a.id = #{groupId}
     </select>
 
 </mapper>

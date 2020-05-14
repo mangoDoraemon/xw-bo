@@ -15,13 +15,14 @@ public class SyncXwGroupInfoSo {
     private String name;
     private String creditCode;
     private String address;
+    private String roomNo;
     private String provId;
     private String cityId;
     private String countyId;
     private String areaId;
     private String gridId;
     private String microId;
-    private Integer fisrtClass;
+    private Integer firstClass;
     private Integer secondClass;
     private String phone;
     private Integer managementState;

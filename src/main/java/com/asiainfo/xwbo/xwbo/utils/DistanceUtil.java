@@ -1,5 +1,6 @@
 package com.asiainfo.xwbo.xwbo.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalCoordinates;
@@ -9,7 +10,8 @@ import org.gavaghan.geodesy.GlobalCoordinates;
  * @create 2020-05-06 15:54
  */
 public class DistanceUtil {
-    public static double getDistance(String lngFrom, String latFrom, String lngTo, String latTo) {
+    public static Long getDistance(String lngFrom, String latFrom, String lngTo, String latTo) {
+        if(StringUtils.isBlank(lngTo) || StringUtils.isBlank(latTo)) return null;
         GlobalCoordinates source = new GlobalCoordinates(Double.parseDouble(latFrom), Double.parseDouble(lngFrom));
         GlobalCoordinates target = new GlobalCoordinates(Double.parseDouble(latTo), Double.parseDouble(lngTo));
 

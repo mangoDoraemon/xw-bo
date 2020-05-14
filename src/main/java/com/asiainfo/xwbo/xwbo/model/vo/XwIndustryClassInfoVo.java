@@ -10,7 +10,7 @@ import java.util.List;
  */
 @Data
 public class XwIndustryClassInfoVo {
-    private Long id;
+    private Integer id;
     private String name;
     private List<XwIndustryClassInfoVo> child;
 }

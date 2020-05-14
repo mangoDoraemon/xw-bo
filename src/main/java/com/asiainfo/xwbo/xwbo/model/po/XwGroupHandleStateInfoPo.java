@@ -10,6 +10,6 @@ import lombok.Data;
 @Table("xw_group_handle_state_info")
 @Data
 public class XwGroupHandleStateInfoPo {
-    private Long id;
+    private Integer id;
     private String message;
 }
