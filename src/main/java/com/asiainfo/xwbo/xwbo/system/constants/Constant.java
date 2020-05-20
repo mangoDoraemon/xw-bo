@@ -1,6 +1,10 @@
 package com.asiainfo.xwbo.xwbo.system.constants;
 
+import com.asiainfo.xwbo.xwbo.model.vo.XwUserRoleInfoVo;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +29,34 @@ public  class Constant {
                 put(WANGGEDUDAO, "网格督导");
             }
         };
+        XwUserRoleInfoVo SUPERINTENDENTVO = new XwUserRoleInfoVo(SUPERINTENDENT, MAPPER.get(SUPERINTENDENT));
+        XwUserRoleInfoVo ZHIXIAORENYUANVO = new XwUserRoleInfoVo(ZHIXIAORENYUAN, MAPPER.get(ZHIXIAORENYUAN));
+        XwUserRoleInfoVo WANGGEZHANGVO = new XwUserRoleInfoVo(WANGGEZHANG, MAPPER.get(WANGGEZHANG));
+        XwUserRoleInfoVo WANGGEDUDAOVO = new XwUserRoleInfoVo(WANGGEDUDAO, MAPPER.get(WANGGEDUDAO));
 
+        Map<Integer, List> ROLE_MAPPER = new HashMap<Integer, List>(){
+            {
+                put(SUPERINTENDENT, new ArrayList<XwUserRoleInfoVo>(){
+                    {
+                        add(WANGGEDUDAOVO);
+                        add(WANGGEZHANGVO);
+                        add(ZHIXIAORENYUANVO);
+                    }
+                });
+
+                put(WANGGEZHANG, new ArrayList<XwUserRoleInfoVo>(){
+                    {
+                        add(ZHIXIAORENYUANVO);
+                    }
+                });
+                put(WANGGEDUDAO, new ArrayList<XwUserRoleInfoVo>(){
+                    {
+                        add(WANGGEZHANGVO);
+                        add(ZHIXIAORENYUANVO);
+                    }
+                });
+            }
+        };
     }
 
     public interface XW_AREA_LEVEL {
@@ -49,38 +80,61 @@ public  class Constant {
         Integer DAIPAIMO = 1;	// 待摸排  还未有直销人员去实地确认过的企业状态
         Integer PAIMOZHONG = 2;	// 摸排中  当前有直销人员在实地摸排中的企业状态
         Integer YIPAIMO = 3;	    // 已摸排  已摸排完但未办理产品的企业
-        Integer SHANGJI = 4;	    // 商机    根据企业画像可以关联上推荐产品的企业
-        Integer ZAIWANG = 5;	    // 在网    已办理过业务产品的企业
         Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
             {
                 put(DAIPAIMO, "待摸排");
                 put(PAIMOZHONG, "摸排中");
                 put(YIPAIMO, "已摸排");
-                put(SHANGJI, "商机");
+            }
+        };
+    }
+
+    public interface XW_GROUP_ZAIWANG_STATE {
+        Integer FEIZAIWANG = 0;
+        Integer ZAIWANG = 1;
+        Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
+            {
+                put(FEIZAIWANG, "非在网");
                 put(ZAIWANG, "在网");
             }
         };
     }
 
+
     public interface XW_GROUP_MANAGEMENT_STATE {
-        Integer XUCUN = 1;	    //存续
+//        Integer XUCUN = 1;	    //存续
         Integer ZAIYE = 2;	    //在业
-        Integer DIAOXIAO = 3;	//吊销
-        Integer ZHUXIAO = 4;	    //注销
-        Integer QIANRU = 5;	    //迁入
-        Integer QIANCHU = 6;	    //迁出
+//        Integer DIAOXIAO = 3;	//吊销
+//        Integer ZHUXIAO = 4;	    //注销
+//        Integer QIANRU = 5;	    //迁入
+//        Integer QIANCHU = 6;	    //迁出
         Integer TINGYE = 7;	    //停业
-        Integer QINGSUAN = 8;	//清算
+//        Integer QINGSUAN = 8;	//清算
         Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
             {
-                put(XUCUN, "存续");
+//                put(XUCUN, "存续");
                 put(ZAIYE, "在业");
-                put(DIAOXIAO, "吊销");
-                put(ZHUXIAO, "注销");
-                put(QIANRU, "迁入");
-                put(QIANCHU, "迁出");
+//                put(DIAOXIAO, "吊销");
+//                put(ZHUXIAO, "注销");
+//                put(QIANRU, "迁入");
+//                put(QIANCHU, "迁出");
                 put(TINGYE, "停业");
-                put(QINGSUAN, "清算");
+//                put(QINGSUAN, "清算");
+            }
+        };
+    }
+
+    public interface XW_JOB_STATE {
+        Integer DAICHULI = 1;	    //待处理
+        Integer CHULIZHONG = 2;	    //处理中
+        Integer YICHAOSHI = 3;	//已超时
+        Integer YIWANCHENG = 4;	    //已完成
+        Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
+            {
+                put(DAICHULI, "待处理");
+                put(CHULIZHONG, "处理中");
+                put(YICHAOSHI, "已超时");
+                put(YIWANCHENG, "已完成");
             }
         };
     }

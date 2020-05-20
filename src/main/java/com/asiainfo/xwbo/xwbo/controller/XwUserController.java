@@ -6,6 +6,7 @@ import com.asiainfo.xwbo.xwbo.model.AjaxResult;
 import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
 import com.asiainfo.xwbo.xwbo.model.so.LoginSo;
+import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
 import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
 import com.asiainfo.xwbo.xwbo.service.XwUserService;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
@@ -65,5 +66,14 @@ public class XwUserController {
         return AjaxResult.markSuccess(xwUserService.checkUserId(xwUserInfoSo));
     }
 
+    @RequestMapping("/qrySubordinates")
+    public AjaxResult qrySubordinates(@RequestBody QrySubordinatesSo qrySubordinatesSo, HttpServletRequest request) throws Exception {
+        return AjaxResult.markSuccess(xwUserService.qrySubordinates(qrySubordinatesSo));
+    }
+
+    @RequestMapping("/qrySubordinatesRoleList")
+    public AjaxResult qrySubordinates(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
+        return AjaxResult.markSuccess(xwUserService.qrySubordinatesRoleList(xwUserInfoSo));
+    }
 
 }

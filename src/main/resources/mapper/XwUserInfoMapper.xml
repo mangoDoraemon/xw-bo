@@ -2,41 +2,61 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.asiainfo.xwbo.xwbo.dao.base.XwUserInfoDao" >
 
-    <resultMap id="BaseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo" >
+    <resultMap id="baseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo" >
         <result column="user_id" property="userId" jdbcType="VARCHAR" />
-        <result column="crm_id" property="crmId" jdbcType="VARCHAR" />
-        <result column="name" property="name" jdbcType="VARCHAR" />
-        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="user_code" property="userCode" jdbcType="VARCHAR" />
+        <result column="user_password" property="userPassword" jdbcType="VARCHAR" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
         <result column="email_address" property="emailAddress" jdbcType="VARCHAR" />
+        <result column="oa_code" property="oaCode" jdbcType="VARCHAR" />
+        <result column="role_id" property="roleId" jdbcType="INTEGER" />
+        <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+        <result column="area_level" property="areaLevel" jdbcType="INTEGER" />
 
         <result column="prov_id" property="provId" jdbcType="VARCHAR" />
         <result column="city_id" property="cityId" jdbcType="VARCHAR" />
         <result column="county_id" property="countyId" jdbcType="VARCHAR" />
-        <result column="area_id" property="areaId" jdbcType="VARCHAR" />
         <result column="grid_id" property="gridId" jdbcType="VARCHAR" />
-
-        <result column="role_id" property="roleId" jdbcType="INTEGER" />
-        <result column="creator" property="creator" jdbcType="VARCHAR" />
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-        <result column="last_updator" property="lastUpdator" jdbcType="VARCHAR" />
-        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
-    </resultMap>
-
-    <resultMap id="UserAreaMap" type="com.asiainfo.xwbo.xwbo.model.po.XwUserAreaInfoPo" >
-        <result column="user_id" property="userId" jdbcType="VARCHAR" />
         <result column="micro_id" property="microId" jdbcType="VARCHAR" />
+
         <result column="creator" property="creator" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
         <result column="last_updator" property="lastUpdator" jdbcType="VARCHAR" />
         <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
     </resultMap>
 
-    <select id="qryUserInfo" parameterType="java.lang.String" resultMap="BaseResultMap">
-        SELECT * FROM xw_user_info WHERE USER_ID = #{userId}
-    </select>
-
-    <select id="qryUserAreaInfo" parameterType="java.lang.String" resultType="java.lang.String">
-        SELECT MICRO_ID FROM xw_user_area_info WHERE USER_ID = #{userId}
+    <select id="qrySubordinates" parameterType="com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo" resultMap="baseResultMap">
+        SELECT * FROM xw_user_info
+        <where>
+            <if test="null != qryName and '' != qryName">
+                user_name like concat('%', #{qryName}, '%')
+            </if>
+            <if test="null != qryCode and '' != qryCode">
+                user_code like concat('%', #{qryCode}, '%')
+            </if>
+            <if test="null != areaLevel">
+                <if test="1 == areaLevel">
+                    and prov_id = #{areaId}
+                </if>
+                <if test="2 == areaLevel">
+                    and city_id = #{areaId}
+                </if>
+                <if test="3 == areaLevel">
+                    and county_id = #{areaId}
+                </if>
+                <if test="4 == areaLevel">
+                    and grid_id = #{areaId}
+                </if>
+            </if>
+            <if test="null != roleIdList and roleIdList.size > 0" >
+                and role_id in
+                <foreach collection="roleIdList" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by role_id desc
     </select>
 
 </mapper>

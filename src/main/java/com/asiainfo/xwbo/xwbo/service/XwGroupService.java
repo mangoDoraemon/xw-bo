@@ -18,7 +18,7 @@ public interface XwGroupService {
 
     void sync(SyncXwGroupInfoSo syncXwGroupInfoSo) throws Exception;
 
-    void changeHandleState(UpdateHandelStateSo updateHandelStateSo) throws Exception;
+    void changeHandleState(UpdateHandleStateSo updateHandelStateSo) throws Exception;
 
     List<XwGroupProductInfoSo> qryProductInfo(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception;
 

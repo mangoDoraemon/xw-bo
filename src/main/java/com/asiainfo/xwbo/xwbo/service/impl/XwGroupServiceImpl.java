@@ -5,7 +5,6 @@ import com.asiainfo.xwbo.xwbo.dao.base.XwGroupInfoDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
-import com.asiainfo.xwbo.xwbo.model.po.XwGroupHandleStateInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwGroupMemberInfoPo;
 import com.asiainfo.xwbo.xwbo.model.so.*;
@@ -71,29 +70,50 @@ public class XwGroupServiceImpl implements XwGroupService {
         List<XwGroupInfoPo> xwGroupInfoPoList;
         long total;
         if(roleId.intValue() == Constant.XW_USER_ROLE.ZHIXIAORENYUAN.intValue()) {
-            //直销人员
+
+            //直销人员 （先看传过来的microIdList是否有值 有就用这个查， 没有通过user的归属查）
             String microIds = xwUserInfo.getMicroIds();
-            if(StringUtils.isBlank(microIds)) {
-                throw new Exception("该用户没有所属微格");
-            }
-
+            List<String> microIdList  = Arrays.asList(microIds.split(","));
             List<String> qryMicroIdList = qryPeripheryXwGroupInfoSo.getMicroIdList();
-            if(null == qryMicroIdList) {
-                List<String> microIdList  = Arrays.asList(microIds.split(","));
+            if(null == qryMicroIdList || qryMicroIdList.size() == 0) {
+                //根据用户的归属微格来查
+                if(StringUtils.isBlank(microIds)) {
+                    throw new Exception("该用户没有所属微格");
+                }
                 qryPeripheryXwGroupInfoSo.setMicroIdList(microIdList);
+            }else {
+                //
+                for(String microId : microIdList) {
+                    if(!microIdList.contains(microId)) {
+                        throw new Exception("该用户没有查询条件中的微格归属");
+                    }
+                }
             }
-        }else if (roleId.intValue() == Constant.XW_USER_ROLE.SUPERINTENDENT.intValue() || roleId.intValue() == Constant.XW_USER_ROLE.WANGGEDUDAO.intValue()) {
-            //负责人 或者网格督导
-            String areaCode = xwUserInfo.getAreaCode();
-            Integer areaLevel = xwUserInfo.getAreaLevel();
-            qryPeripheryXwGroupInfoSo.setAreaId(areaCode);
-            qryPeripheryXwGroupInfoSo.setAreaLevel(areaLevel);
+        }else  {
 
-        }else if (roleId.intValue() == Constant.XW_USER_ROLE.WANGGEZHANG.intValue()) {
-            //网格长
-            String gridId = xwUserInfo.getGridId();
-            qryPeripheryXwGroupInfoSo.setAreaLevel(Constant.XW_AREA_LEVEL.GRID);
-            qryPeripheryXwGroupInfoSo.setAreaId(gridId);
+            String qryAreaId = qryPeripheryXwGroupInfoSo.getAreaId();
+            Integer qryAreaLevel = qryPeripheryXwGroupInfoSo.getAreaLevel();
+            if(StringUtils.isBlank(qryAreaId) || null == qryAreaLevel) {
+                //根据用户的信息来查
+                if(roleId.intValue() == Constant.XW_USER_ROLE.WANGGEZHANG.intValue()) {
+                    //网格长
+                    String gridId = xwUserInfo.getGridId();
+                    qryPeripheryXwGroupInfoSo.setAreaId(gridId);
+                    qryPeripheryXwGroupInfoSo.setAreaLevel(Constant.XW_AREA_LEVEL.GRID);
+                }else {
+                    //负责人 或者网格督导
+                    String areaCode = xwUserInfo.getAreaCode();
+                    Integer areaLevel = xwUserInfo.getAreaLevel();
+                    qryPeripheryXwGroupInfoSo.setAreaId(areaCode);
+                    qryPeripheryXwGroupInfoSo.setAreaLevel(areaLevel);
+                }
+
+            }else {
+                qryPeripheryXwGroupInfoSo.setAreaId(qryAreaId);
+                qryPeripheryXwGroupInfoSo.setAreaLevel(qryAreaLevel);
+            }
+
+
         }
 
         List<XwGroupInfoVo> xwGroupInfoVoList = new ArrayList<>();
@@ -169,6 +189,8 @@ public class XwGroupServiceImpl implements XwGroupService {
 
             xwGroupInfoPo = syncXwGroupInfoSoToPo(xwGroupInfoPo, syncXwGroupInfoSo);
             xwGroupInfoPo.setHandleState(syncXwGroupInfoSo.getHandleState());
+            xwGroupInfoPo.setCreator(syncXwGroupInfoSo.getUserId());
+            xwGroupInfoPo.setCreateTime(new Date());
             groupId = commonExtDao.saveReturnKey(SqlBuilder.build(XwGroupInfoPo.class), xwGroupInfoPo);
 
             syncXwGroupInfoSo.setId(groupId);
@@ -200,12 +222,12 @@ public class XwGroupServiceImpl implements XwGroupService {
     }
 
     @Override
-    public void changeHandleState(UpdateHandelStateSo updateHandelStateSo) throws Exception {
-        Long groupId = updateHandelStateSo.getGroupId();
+    public void changeHandleState(UpdateHandleStateSo updateHandleStateSo) throws Exception {
+        Long groupId = updateHandleStateSo.getGroupId();
         XwGroupInfoPo xwGroupInfoPo = qryGroupInfoPo(groupId);
-        xwGroupInfoPo.setHandleState(updateHandelStateSo.getHandleState());
-        xwGroupInfoPo.setLastHandleUser(updateHandelStateSo.getUserId());
-        xwGroupInfoPo.setLastHandelTime(new Date());
+        xwGroupInfoPo.setHandleState(updateHandleStateSo.getHandleState());
+        xwGroupInfoPo.setLastHandleUser(updateHandleStateSo.getUserId());
+        xwGroupInfoPo.setLastHandleTime(new Date());
         commonExtDao.update(SqlBuilder.build(XwGroupInfoPo.class).eq("id", groupId), xwGroupInfoPo);
     }
 
@@ -280,13 +302,16 @@ public class XwGroupServiceImpl implements XwGroupService {
         xwGroupInfoPo.setSecondClass(syncXwGroupInfoSo.getSecondClass());
         xwGroupInfoPo.setManagementState(syncXwGroupInfoSo.getManagementState());
         xwGroupInfoPo.setCreditCode(syncXwGroupInfoSo.getCreditCode());
-//        xwGroupInfoPo.setHandleState(syncXwGroupInfoSo.getHandleState());
         xwGroupInfoPo.setRelationGroupId(syncXwGroupInfoSo.getRelationGroupId());
         xwGroupInfoPo.setPhone(syncXwGroupInfoSo.getPhone());
         xwGroupInfoPo.setLng(syncXwGroupInfoSo.getLng());
         xwGroupInfoPo.setLat(syncXwGroupInfoSo.getLat());
-        xwGroupInfoPo.setCreator(syncXwGroupInfoSo.getUserId());
-        xwGroupInfoPo.setCreateTime(new Date());
+        if(Constant.XW_GROUP_HANDLE_STATE.YIPAIMO == syncXwGroupInfoSo.getHandleState() && StringUtils.isNotBlank(syncXwGroupInfoSo.getRelationGroupId())) {
+            xwGroupInfoPo.setZaiwang(Constant.XW_GROUP_ZAIWANG_STATE.ZAIWANG);
+
+        }else {
+            xwGroupInfoPo.setZaiwang(Constant.XW_GROUP_ZAIWANG_STATE.FEIZAIWANG);
+        }
         return xwGroupInfoPo;
     }
 
@@ -313,11 +338,13 @@ public class XwGroupServiceImpl implements XwGroupService {
                 .managementStateMessage(xwGroupManagementStateInfoLoader.get(xwGroupInfoPo.getManagementState()) ==null? null: xwGroupManagementStateInfoLoader.get(xwGroupInfoPo.getManagementState()).getMessage())
                 .handleState(xwGroupInfoPo.getHandleState())
                 .handleStateMessage(xwGroupHandleStateInfoLoader.get(xwGroupInfoPo.getHandleState()) ==null? null: xwGroupHandleStateInfoLoader.get(xwGroupInfoPo.getHandleState()).getMessage())
+                .zaiwang(xwGroupInfoPo.getZaiwang())
+                .zaiwangMessage(Constant.XW_GROUP_ZAIWANG_STATE.MAPPER.get(xwGroupInfoPo.getZaiwang()))
                 .relationGroupId(xwGroupInfoPo.getRelationGroupId())
                 .lng(xwGroupInfoPo.getLng())
                 .lat(xwGroupInfoPo.getLat())
                 .lastHandleUser(xwGroupInfoPo.getLastHandleUser())
-                .lastHandelTime(new DateTime(xwGroupInfoPo.getLastHandelTime()).toString("yyyy-MM-dd HH:mm:ss"))
+                .lastHandelTime(new DateTime(xwGroupInfoPo.getLastHandleTime()).toString("yyyy-MM-dd HH:mm:ss"))
                 .createTime(new DateTime(xwGroupInfoPo.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss")).build();
         List<String> areaIdList = new ArrayList<>();
         areaIdList.add(xwGroupInfoPo.getProvId());

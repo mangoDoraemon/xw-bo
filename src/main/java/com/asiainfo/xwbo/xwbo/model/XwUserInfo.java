@@ -3,6 +3,7 @@ package com.asiainfo.xwbo.xwbo.model;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jiahao jin
@@ -31,4 +32,5 @@ public class XwUserInfo {
     private String microIds;
     private List<XwAreaInfo> microIdList;
     private String token;
+    private Map<String, String> kpiValue;
 }

@@ -1,6 +1,7 @@
 package com.asiainfo.xwbo.xwbo.dao.base;
 
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
+import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,5 @@ import java.util.List;
 @Repository
 public interface XwUserInfoDao {
 
-    XwUserInfoPo qryUserInfo(String userId);
-
-    List<String> qryUserAreaInfo(String userId);
+    List<XwUserInfoPo> qrySubordinates(QrySubordinatesSo qrySubordinatesSo);
 }

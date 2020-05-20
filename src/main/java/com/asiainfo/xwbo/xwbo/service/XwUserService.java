@@ -2,9 +2,13 @@ package com.asiainfo.xwbo.xwbo.service;
 
 import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
 import com.asiainfo.xwbo.xwbo.model.so.LoginSo;
+import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
 import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
+import com.asiainfo.xwbo.xwbo.model.vo.PageResultVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
+
+import java.util.List;
 
 /**
  * @author jiahao jin
@@ -20,4 +24,9 @@ public interface XwUserService {
     XwMicroInfoVo microInfo(XwUserInfoSo xwUserInfoSo) throws Exception;
 
     XwUserInfo login(LoginSo loginSo) throws Exception;
+
+    PageResultVo qrySubordinates(QrySubordinatesSo qrySubordinatesSo) throws Exception;
+
+    List qrySubordinatesRoleList(XwUserInfoSo xwUserInfoSo) throws Exception;
+
 }

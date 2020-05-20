@@ -125,7 +125,7 @@ public class AESXnwTools {
         // 加密
         System.out.println( "加密后的字串是：" + enString );
         // 解密
-        String DeString = AESXnwTools.getInstance().decrypt( "UpOzSl6H3/VbRDiy6eNeeA==" );
+        String DeString = AESXnwTools.getInstance().decrypt( "wctEzyPj918e1zfYShrX7w==" );
         System.out.println( "解密后的字串是：" + DeString );
     }
 

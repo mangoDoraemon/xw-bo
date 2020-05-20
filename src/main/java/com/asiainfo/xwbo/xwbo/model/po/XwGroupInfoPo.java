@@ -28,12 +28,13 @@ public class XwGroupInfoPo {
     private String phone;
     private Integer managementState;
     private Integer handleState;
+    private Integer zaiwang;
     private String relationGroupId;
     private String lng;
     private String lat;
 
     private String lastHandleUser;
-    private Date lastHandelTime;
+    private Date lastHandleTime;
 
     private String creator;
     private Date createTime;

@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class QryPeripheryXwGroupInfoSo extends XwUserInfoSo {
     private Integer handleState;
+    private Integer zaiwang;
     private Integer managementState;
     private Integer firstClass;
     private Integer secondClass;

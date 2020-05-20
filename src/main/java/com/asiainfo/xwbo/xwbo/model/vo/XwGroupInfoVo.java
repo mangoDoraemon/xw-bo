@@ -34,8 +34,10 @@ public class XwGroupInfoVo {
     private String phone;
     private Integer managementState;
     private Integer handleState;
+    private Integer zaiwang;
     private String managementStateMessage;
     private String handleStateMessage;
+    private String zaiwangMessage;
     private String relationGroupId;
     private String lng;
     private String lat;

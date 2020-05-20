@@ -1,27 +1,33 @@
 package com.asiainfo.xwbo.xwbo.service.impl;
 
 import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
+import com.asiainfo.xwbo.xwbo.dao.base.XwUserInfoDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.XwAreaInfo;
 import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
+import com.asiainfo.xwbo.xwbo.model.po.XwUserRoleInfoPo;
+import com.asiainfo.xwbo.xwbo.model.po.XwViewUserInfo;
 import com.asiainfo.xwbo.xwbo.model.so.LoginSo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
+import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
 import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
+import com.asiainfo.xwbo.xwbo.model.vo.*;
 import com.asiainfo.xwbo.xwbo.service.XwAreaService;
 import com.asiainfo.xwbo.xwbo.service.XwUserService;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
 import com.asiainfo.xwbo.xwbo.utils.AESXnwTools;
 import com.asiainfo.xwbo.xwbo.utils.UserUtil;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +45,9 @@ public class XwUserServiceImpl implements XwUserService {
 
     @Resource
     private XwAreaService xwAreaService;
+
+    @Resource
+    private XwUserInfoDao xwUserInfoDao;
 
     @Override
     public XwAreaInfoVo areaInfo(XwUserInfoSo xwUserInfoSo) throws Exception {
@@ -102,6 +111,75 @@ public class XwUserServiceImpl implements XwUserService {
         String token = UserUtil.sign(xwUserInfo);
         xwUserInfo.setToken(token);
         return xwUserInfo;
+    }
+
+    @Override
+    public PageResultVo qrySubordinates(QrySubordinatesSo qrySubordinatesSo) throws Exception {
+        PageResultVo pageResultVo = new PageResultVo();
+        XwUserInfo xwUserInfo = qryInfo(qrySubordinatesSo);
+        String qryAreaId = qrySubordinatesSo.getAreaId();
+        Integer qryAreaLevel = qrySubordinatesSo.getAreaLevel();
+        if(xwUserInfo.getRoleId() == Constant.XW_USER_ROLE.ZHIXIAORENYUAN) {
+            throw new Exception("该人员无权限");
+        }
+
+        if(StringUtils.isBlank(qryAreaId) || null == qryAreaLevel) {
+            if(xwUserInfo.getRoleId() == Constant.XW_USER_ROLE.WANGGEZHANG) {
+                qrySubordinatesSo.setAreaId(xwUserInfo.getGridId());
+                qrySubordinatesSo.setAreaLevel(Constant.XW_AREA_LEVEL.GRID);
+            }else {
+                qrySubordinatesSo.setAreaId(xwUserInfo.getAreaCode());
+                qrySubordinatesSo.setAreaLevel(xwUserInfo.getAreaLevel());
+            }
+        }
+        Integer qryRoleId = qrySubordinatesSo.getQryRoleId();
+        List<Integer> roleIdList = new ArrayList<>();
+        if(null == qryRoleId) {
+//            qrySubordinatesSo.setRoleId(xwUserInfo.getRoleId());
+            List<XwUserRoleInfoPo> xwUserRoleInfoPoList = commonExtDao.query(SqlBuilder.build(XwUserRoleInfoPo.class).eq("role_id", xwUserInfo.getRoleId()));
+            xwUserRoleInfoPoList.forEach(po -> roleIdList.add(po.getSubRoleId()));
+            qrySubordinatesSo.setRoleIdList(roleIdList);
+        }else {
+            roleIdList.add(qryRoleId);
+            qrySubordinatesSo.setRoleIdList(roleIdList);
+        }
+        String pageNum = qrySubordinatesSo.getPageNum();
+        String pageSize = qrySubordinatesSo.getPageSize();
+        long total = 0L;
+        List<XwUserInfoPo> xwUserInfoPoList = new ArrayList<>();
+        if(StringUtils.isNotBlank(pageNum) && StringUtils.isNotBlank(pageSize)) {
+            Page pageInfo = PageHelper.startPage(Integer.valueOf(pageNum), Integer.valueOf(pageSize));
+            xwUserInfoPoList = xwUserInfoDao.qrySubordinates(qrySubordinatesSo);
+            total = pageInfo.getTotal();
+        }else {
+            xwUserInfoPoList = xwUserInfoDao.qrySubordinates(qrySubordinatesSo);
+            total = xwUserInfoPoList.size();
+        }
+        List<XwUserInfo> xwUserInfoList = new ArrayList<>();
+        DecimalFormat df = new DecimalFormat("0.00%");
+        xwUserInfoPoList.forEach(info -> {
+            XwUserInfo subXwUserInfo = xwUserInfoPoToModel(info);
+            Map<String, String> kpiValue = new HashMap<>();
+            XwViewUserInfo xwViewUserInfo = commonExtDao.queryForObject(SqlBuilder.build(XwViewUserInfo.class).eq("user_id", subXwUserInfo.getUserId()));
+
+            kpiValue.put("message1", String.valueOf(xwViewUserInfo.getSevenNum()==null? 0: xwViewUserInfo.getSevenNum()));
+            kpiValue.put("message2", "0");
+            kpiValue.put("message3", String.valueOf(xwViewUserInfo.getJobInNum()==null? 0: xwViewUserInfo.getJobInNum()));
+            kpiValue.put("message4", String.valueOf(xwViewUserInfo.getRate()==null? 0:  df.format(xwViewUserInfo.getRate())));
+            subXwUserInfo.setKpiValue(kpiValue);
+            xwUserInfoList.add(subXwUserInfo);
+        });
+        pageResultVo.setList(xwUserInfoList);
+        pageResultVo.setTotal(total);
+        return pageResultVo;
+    }
+
+    @Override
+    public List qrySubordinatesRoleList(XwUserInfoSo xwUserInfoSo) throws Exception {
+        XwUserInfo xwUserInfo = qryInfo(xwUserInfoSo);
+        Integer roleId = xwUserInfo.getRoleId();
+
+        return Constant.XW_USER_ROLE.ROLE_MAPPER.get(roleId);
     }
 
     @Override

@@ -18,11 +18,13 @@
         <result column="phone" property="phone" jdbcType="VARCHAR" />
         <result column="management_state" property="managementState" jdbcType="INTEGER" />
         <result column="handle_state" property="handleState" jdbcType="INTEGER" />
+        <result column="zaiwang" property="zaiwang" jdbcType="INTEGER" />
         <result column="relation_group_id" property="relationGroupId" jdbcType="VARCHAR" />
+
         <result column="lng" property="lng" jdbcType="VARCHAR" />
         <result column="lat" property="lat" jdbcType="VARCHAR" />
         <result column="last_handle_user" property="lastHandleUser" jdbcType="VARCHAR" />
-        <result column="last_handel_time" property="lastHandelTime" jdbcType="TIMESTAMP" />
+        <result column="last_handle_time" property="lastHandleTime" jdbcType="TIMESTAMP" />
         <result column="creator" property="creator" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
         <result column="last_updator" property="lastUpdator" jdbcType="VARCHAR" />
@@ -54,6 +56,9 @@
         <where>
             <if test="null != handleState">
                 and HANDLE_STATE = #{handleState}
+            </if>
+            <if test="null != zaiwang">
+                and zaiwang = #{zaiwang}
             </if>
 
             <if test="null != managementState">

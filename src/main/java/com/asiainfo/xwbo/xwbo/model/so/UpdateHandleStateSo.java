@@ -8,7 +8,7 @@ import lombok.Data;
  * @create 2020-05-14 12:10
  */
 @Data
-public class UpdateHandelStateSo extends QryXwGroupInfoSo {
+public class UpdateHandleStateSo extends QryXwGroupInfoSo {
     private String userId;
     private Integer handleState;
 }

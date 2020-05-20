@@ -6,13 +6,10 @@ import com.asiainfo.xwbo.xwbo.model.XwAreaInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
-import com.asiainfo.xwbo.xwbo.model.vo.XwIndustryClassInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
 import com.asiainfo.xwbo.xwbo.service.XwAreaService;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.stream.Collectors;
 
 /**

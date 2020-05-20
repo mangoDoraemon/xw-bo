@@ -4,7 +4,7 @@ import com.asiainfo.xwbo.xwbo.model.AjaxResult;
 import com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.SyncXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.UpdateHandelStateSo;
+import com.asiainfo.xwbo.xwbo.model.so.UpdateHandleStateSo;
 import com.asiainfo.xwbo.xwbo.service.XwGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,7 +44,7 @@ public class XwGroupController {
     }
 
     @RequestMapping("/changeHandleState")
-    public AjaxResult changeHandleState(@RequestBody UpdateHandelStateSo updateHandelStateSo) throws Exception {
+    public AjaxResult changeHandleState(@RequestBody UpdateHandleStateSo updateHandelStateSo) throws Exception {
         xwGroupService.changeHandleState(updateHandelStateSo);
         return AjaxResult.markSuccess();
     }
