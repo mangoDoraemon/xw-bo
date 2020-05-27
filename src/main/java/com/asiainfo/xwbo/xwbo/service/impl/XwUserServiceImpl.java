@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,11 +53,13 @@ public class XwUserServiceImpl implements XwUserService {
     @Override
     public XwAreaInfoVo areaInfo(XwUserInfoSo xwUserInfoSo) throws Exception {
 
+
         XwUserInfo xwUserInfo = qryInfo(xwUserInfoSo);
-        String microIds = xwUserInfo.getMicroIds();
-        if(StringUtils.isBlank(microIds)) {
-            throw new Exception("该人员无权限查看");
-        }
+
+//        String microIds = xwUserInfo.getMicroIds();
+//        if(StringUtils.isBlank(microIds)) {
+//            throw new Exception("该人员无权限查看");
+//        }
         Integer roleId = xwUserInfo.getRoleId();
         String areaId = "";
         if(roleId.intValue() == Constant.XW_USER_ROLE.ZHIXIAORENYUAN.intValue() || roleId.intValue() == Constant.XW_USER_ROLE.WANGGEZHANG.intValue()){
@@ -86,11 +89,21 @@ public class XwUserServiceImpl implements XwUserService {
     }
 
     @Override
+    public boolean checkToken(HttpServletRequest request) throws Exception {
+        String token = request.getHeader("token");
+        if(StringUtils.isBlank(token)) {
+            throw new Exception("无token");
+        }
+
+        return UserUtil.isOverdue(token);
+    }
+
+    @Override
     public XwMicroInfoVo microInfo(XwUserInfoSo xwUserInfoSo) throws Exception {
         XwUserInfo xwUserInfo = qryInfo(xwUserInfoSo);
         String microIds = xwUserInfo.getMicroIds();
         if(StringUtils.isBlank(microIds)) {
-            throw new Exception("该人员无权限查看");
+            throw new Exception("该人员无所属微格");
         }
         List<String> microIdList = Arrays.asList(microIds.split(","));
         QryAreaInfoSo qryAreaInfoSo = new QryAreaInfoSo();
@@ -156,21 +169,40 @@ public class XwUserServiceImpl implements XwUserService {
             total = xwUserInfoPoList.size();
         }
         List<XwUserInfo> xwUserInfoList = new ArrayList<>();
-        DecimalFormat df = new DecimalFormat("0.00%");
+
         xwUserInfoPoList.forEach(info -> {
             XwUserInfo subXwUserInfo = xwUserInfoPoToModel(info);
-            Map<String, String> kpiValue = new HashMap<>();
-            XwViewUserInfo xwViewUserInfo = commonExtDao.queryForObject(SqlBuilder.build(XwViewUserInfo.class).eq("user_id", subXwUserInfo.getUserId()));
 
-            kpiValue.put("message1", String.valueOf(xwViewUserInfo.getSevenNum()==null? 0: xwViewUserInfo.getSevenNum()));
-            kpiValue.put("message2", "0");
-            kpiValue.put("message3", String.valueOf(xwViewUserInfo.getJobInNum()==null? 0: xwViewUserInfo.getJobInNum()));
-            kpiValue.put("message4", String.valueOf(xwViewUserInfo.getRate()==null? 0:  df.format(xwViewUserInfo.getRate())));
-            subXwUserInfo.setKpiValue(kpiValue);
             xwUserInfoList.add(subXwUserInfo);
         });
         pageResultVo.setList(xwUserInfoList);
         pageResultVo.setTotal(total);
+        return pageResultVo;
+    }
+
+    @Override
+    public PageResultVo qrySubordinatesWorkDetail(QrySubordinatesSo qrySubordinatesSo) throws Exception {
+        PageResultVo pageResultVo = qrySubordinates(qrySubordinatesSo);
+        DecimalFormat df = new DecimalFormat("0.00%");
+        pageResultVo.getList().forEach( vo -> {
+            XwUserInfo  subXwUserInfo = (XwUserInfo) vo;
+            Map<String, String> kpiValue = new HashMap<>();
+            XwViewUserInfo xwViewUserInfo = null;
+            xwViewUserInfo = commonExtDao.queryForObject(SqlBuilder.build(XwViewUserInfo.class).eq("user_id", subXwUserInfo.getUserId()));
+            if(null == xwViewUserInfo) {
+                kpiValue.put("message1", "0");
+                kpiValue.put("message2", "0");
+                kpiValue.put("message3", "0");
+                kpiValue.put("message4", "0");
+            }else {
+                kpiValue.put("message1", String.valueOf(xwViewUserInfo.getSevenNum()==null? 0: xwViewUserInfo.getSevenNum()));
+                kpiValue.put("message2", "0");
+                kpiValue.put("message3", String.valueOf(xwViewUserInfo.getJobInNum()==null? 0: xwViewUserInfo.getJobInNum()));
+                kpiValue.put("message4", String.valueOf(xwViewUserInfo.getRate()==null? 0:  df.format(xwViewUserInfo.getRate())));
+            }
+
+            subXwUserInfo.setKpiValue(kpiValue);
+        });
         return pageResultVo;
     }
 
@@ -183,7 +215,12 @@ public class XwUserServiceImpl implements XwUserService {
     }
 
     @Override
-    public XwUserInfo qryInfo(XwUserInfoSo xwUserInfoSo) throws Exception {
+    public String getAes(String userId) throws Exception {
+        return AESXnwTools.getInstance().encrypt( userId );
+    }
+
+    @Override
+    public XwUserInfo qryInfo(XwUserInfoSo xwUserInfoSo) throws Exception{
         XwUserInfoPo xwUserInfoPo = commonExtDao.queryForObject(SqlBuilder.build(XwUserInfoPo.class).eq("user_id", xwUserInfoSo.getUserId()));
         if(null == xwUserInfoPo) {
             throw new Exception("无该人员信息");

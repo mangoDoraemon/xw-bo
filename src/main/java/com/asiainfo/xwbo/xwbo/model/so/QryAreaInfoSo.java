@@ -9,8 +9,9 @@ import java.util.List;
  * @create 2020-05-09 12:00
  */
 @Data
-public class QryAreaInfoSo {
+public class QryAreaInfoSo extends SignSo{
     private String areaId;
-    private String areaLevel;
+    private Integer areaLevel;
     private List<String> mircoIdList;
+    private List<String> areaIdList;
 }

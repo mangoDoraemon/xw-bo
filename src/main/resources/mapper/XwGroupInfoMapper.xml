@@ -122,19 +122,30 @@
     </select>
 
     <select id="qryCaseItemInfo" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo" resultMap="groupItemResultMap">
-        select
-            a.id as group_id,
-            c.id as item_id,
-            area_name,
-            title,
-            case_type,
-            trade_type,
-            con,
-            c.create_date,
-            c.creator
-        from xw_group_info a, xw_group_case_item_info b, xw_case_item_info c
-        where
-            a.id = b.group_id and b.item_id = c.id and a.id = #{groupId}
+
+          select a.group_id, a.item_id, b.area_name, a.title, a.case_type, a.trade_type,
+                a.con, a.create_date, b.user_name as creator from (
+                select a.id as group_id,
+                       c.id as item_id,
+                       c.area_name,
+                       c.title,
+                       c.case_type,
+                       c.trade_type,
+                       c.con,
+                       c.create_date,
+                       c.cus_id
+                from xw_group_info a,
+                     xw_group_case_item_info b,
+                     xw_case_item_info c
+                where a.id = b.group_id
+                  and b.item_id = c.id and a.id = #{groupId}
+              ) a left join xw_user_info  b on a.cus_id = b.user_id
     </select>
+
+    <update id="updateHandleUser" parameterType="com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo" >
+        update xw_group_info set last_handle_user = #{lastHandleUser}, last_handle_time = #{lastHandleTime}, handle_state = #{newHandleState},
+            last_updator = #{lastUpdator}, last_update_time = #{lastUpdateTime} where id = #{id} and handle_state = #{handleState}
+
+    </update>
 
 </mapper>

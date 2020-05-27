@@ -18,12 +18,13 @@ public class XwJobInfoPo {
     private Integer handleRequire;
     private String handleUserId;
     private Integer state;
+    private Integer isTimeout;
     private String message;
     private String creator;
     private Date createTime;
     private Date endTime;
     private String lastUpdator;
     private Date lastUpdateTime;
-    private String jobName;
+
 
 }

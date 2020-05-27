@@ -45,5 +45,6 @@ public class XwGroupInfoVo {
     private String lastHandleUser;
     private String lastHandelTime;
     private String createTime;
+    private String gaodeUrl;
 
 }

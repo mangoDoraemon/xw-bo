@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.asiainfo.xwbo.xwbo.dao.base.XwJobInfoDao" >
+
+    <resultMap id="baseResultMap" type="com.asiainfo.xwbo.xwbo.model.po.XwJobInfoPo" >
+
+        <result column="job_id" property="jobId" jdbcType="BIGINT" />
+        <result column="group_id" property="groupId" jdbcType="BIGINT" />
+        <result column="handle_require" property="handleRequire" jdbcType="INTEGER" />
+        <result column="handle_user_id" property="handleUserId" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="is_timeout" property="isTimeout" jdbcType="INTEGER" />
+        <result column="message" property="message" jdbcType="VARCHAR" />
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="last_updator" property="lastUpdator" jdbcType="VARCHAR" />
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <resultMap id="jobCountResultMap" type="com.asiainfo.xwbo.xwbo.model.vo.XwJobCountInfoVo" >
+
+        <result column="dai_chu_li" property="daiChuLi" jdbcType="INTEGER" />
+        <result column="chu_li_zhong" property="chuLiZhong" jdbcType="INTEGER" />
+        <result column="yi_chao_shi" property="yiChaoShi" jdbcType="INTEGER" />
+        <result column="yi_wan_cheng" property="yiWanCheng" jdbcType="INTEGER" />
+    </resultMap>
+
+    <select id="qryJobAll" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryJobInfoSo" resultMap="baseResultMap">
+        SELECT a.* FROM xw_job_info a left join xw_group_info b on a.group_id = b.id
+        <where>
+            <if test="null != handleUserId and '' != handleUserId">
+                and a.handle_user_id = #{handleUserId}
+            </if>
+            <if test="null != creator and '' != creator">
+                and a.creator = #{creator}
+            </if>
+            <if test="null != keywords and '' != keywords">
+                and b.name like concat('%', #{keywords}, '%')
+            </if>
+            <if test="null != state">
+                and a.state = #{state}
+            </if>
+            <if test="null != jobId and '' != jobId">
+                and job_id = #{jobId}
+            </if>
+            <if test="null != isTimeout ">
+                and is_timeout = #{isTimeout}
+            </if>
+        </where>
+    </select>
+
+    <select id="qryJobInfo" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryJobInfoSo" resultMap="baseResultMap">
+        SELECT * FROM xw_job_info
+        <where>
+            job_id = #{jobId}
+            <if test="null != handleUserId and '' != handleUserId">
+                and handle_user_id = #{handleUserId}
+            </if>
+            <if test="null != creator and '' != creator">
+                and creator = #{creator}
+            </if>
+        </where>
+    </select>
+
+    <select id="qryAllJobCount" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryJobInfoSo" resultMap="jobCountResultMap">
+
+        select
+            IFNULL(sum(case state when 1 then count else 0 end ),0) 'dai_chu_li',
+            IFNULL(sum(case state when 2 then count else 0 end ),0) 'chu_li_zhong',
+            IFNULL(sum(case state when 3 then count else 0 end ),0) 'yi_wan_cheng'
+                from (
+                select state, count(state) count from xw_job_info
+                    <where>
+                        <if test="null != handleUserId and '' != handleUserId">
+                            and handle_user_id = #{handleUserId}
+                        </if>
+                        <if test="null != creator and '' != creator">
+                            and creator = #{creator}
+                        </if>
+                    </where> group by state
+            ) a
+    </select>
+
+</mapper>

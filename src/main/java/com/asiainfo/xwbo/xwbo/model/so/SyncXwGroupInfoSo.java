@@ -10,7 +10,7 @@ import java.util.List;
  * @create 2020-05-06 14:48
  */
 @Data
-public class SyncXwGroupInfoSo {
+public class SyncXwGroupInfoSo extends SignSo{
     private Long id;
     private String name;
     private String creditCode;

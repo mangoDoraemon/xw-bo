@@ -4,6 +4,7 @@ import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.XwAreaInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
+import com.asiainfo.xwbo.xwbo.model.po.XwWegMopaiRatePo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
@@ -42,16 +43,56 @@ public class XwAreaServiceImpl implements XwAreaService {
         String path = parentXwAreaInfoPo.getAreaName();
         xwAreaInfoVo.setPath(path);
         XwAreaInfo parentXwAreaInfo = xwAreaInfoPoToModel(parentXwAreaInfoPo);
-
         List<XwAreaInfo> childXeAreaInfoList = new ArrayList<>();
-        List<XwAreaInfoPo> childXwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid", qryAreaInfoSo.getAreaId()));
-        if(null != childXwAreaInfoPoList && childXwAreaInfoPoList.size() > 0) {
-            childXeAreaInfoList = childXwAreaInfoPoList.stream().map(po -> xwAreaInfoPoToModel(po)).collect(Collectors.toList());
+        if(qryAreaInfoSo.getAreaLevel().intValue() <= Constant.XW_AREA_LEVEL.COUNTY.intValue()) {
+            List<XwAreaInfoPo> childXwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid", qryAreaInfoSo.getAreaId()));
+            if(null != childXwAreaInfoPoList && childXwAreaInfoPoList.size() > 0) {
+                childXeAreaInfoList = childXwAreaInfoPoList.stream().map(po -> xwAreaInfoPoToModel(po)).collect(Collectors.toList());
 
+            }
+        }else if(Constant.XW_AREA_LEVEL.GRID.equals(qryAreaInfoSo.getAreaLevel())) {
+            //微格信息
+            List<XwAreaInfoPo> child72XwAreaInfoPoList =
+                    commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid", qryAreaInfoSo.getAreaId()).eq("area_level", Constant.XW_AREA_LEVEL.MICRO));
+            if(null != child72XwAreaInfoPoList && child72XwAreaInfoPoList.size() > 0) {
+                for(XwAreaInfoPo po72 : child72XwAreaInfoPoList) {
+                    //根据微格查所有小区 area_level = 7
+                    List<XwAreaInfoPo> child7XwAreaInfoPoList =
+                            commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid72", po72.getAreaId()));
+                    if(null != child7XwAreaInfoPoList && child7XwAreaInfoPoList.size() > 0) {
+                        for(XwAreaInfoPo po7 : child7XwAreaInfoPoList) {
+                            XwAreaInfo xwAreaInfo7 = xwAreaInfoPoToModel(po7);
+                            xwAreaInfo7.setAreaPid(qryAreaInfoSo.getAreaId());
+                            childXeAreaInfoList.add(xwAreaInfo7);
+                        }
+                    }
+                }
+            }
+        }else if(Constant.XW_AREA_LEVEL.MICRO.equals(qryAreaInfoSo.getAreaLevel())) {
+            List<XwAreaInfoPo> child7XwAreaInfoPoList =
+                    commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid72", qryAreaInfoSo.getAreaId()));
+            if(null != child7XwAreaInfoPoList && child7XwAreaInfoPoList.size() > 0) {
+                for(XwAreaInfoPo po7 : child7XwAreaInfoPoList) {
+                    XwAreaInfo xwAreaInfo7 = xwAreaInfoPoToModel(po7);
+                    xwAreaInfo7.setAreaPid(qryAreaInfoSo.getAreaId());
+                    childXeAreaInfoList.add(xwAreaInfo7);
+                }
+            }
         }
         parentXwAreaInfo.setChild(childXeAreaInfoList);
         xwAreaInfoVo.setMap(parentXwAreaInfo);
         return xwAreaInfoVo;
+    }
+
+    @Override
+    public Map<String, Double> getXwAreaRate(QryAreaInfoSo qryAreaInfoSo) {
+        List<String>  areaIdList = qryAreaInfoSo.getAreaIdList();
+        Map<String, Double> map = new HashMap<>();
+        List<XwWegMopaiRatePo> xwWegMopaiRatePoList = commonExtDao.query(SqlBuilder.build(XwWegMopaiRatePo.class).in("micro_id", areaIdList));
+        if(null != xwWegMopaiRatePoList && xwWegMopaiRatePoList.size() > 0) {
+            map = xwWegMopaiRatePoList.stream().collect(Collectors.toMap(XwWegMopaiRatePo :: getMicroId, po -> po.getRate()));
+        }
+        return map;
     }
 
     @Override

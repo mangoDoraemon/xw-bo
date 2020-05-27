@@ -11,10 +11,14 @@ import java.util.Date;
 @Data
 public class XwJobInfoVo {
     private Long jobId;
-    private Long groupId;
+    private XwGroupInfoVo xwGroupInfoVo;
     private Integer state;
+    private Integer isTimeout;
     private String stateMessage;
-    private String jobName;
+    private String timeoutMessage;
     private String endTime;
     private String endTimeMessage;
+    private String handlueUserId;
+    private String handleUserName;
+    private String createTime;
 }

@@ -47,9 +47,9 @@ public class XwGroupManagementStateInfoLoader {
 
     public XwGroupManagementStateInfoPo get(Integer id) {
         XwGroupManagementStateInfoPo po = map.get(id);
-        if(null == po) {
-            update();
-        }
+//        if(null == po) {
+//            update();
+//        }
         return map.get(id);
     }
 

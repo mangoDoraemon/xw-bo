@@ -7,7 +7,7 @@ import lombok.Data;
  * @create 2020-05-06 15:50
  */
 @Data
-public class XwUserInfoSo {
+public class XwUserInfoSo extends SignSo {
     public String userId;
 
 }

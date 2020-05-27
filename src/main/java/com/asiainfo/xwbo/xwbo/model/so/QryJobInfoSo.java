@@ -17,4 +17,5 @@ public class QryJobInfoSo extends XwUserInfoSo {
     private String pageNum;
     private String pageSize;
     private String keywords;
+    private Integer isTimeout;
 }

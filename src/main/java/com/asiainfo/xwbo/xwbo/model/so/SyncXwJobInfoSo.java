@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @Data
 
-public class SyncXwJobInfoSo {
+public class SyncXwJobInfoSo extends SignSo{
 
     private Long jobId;
     private Long groupId;
@@ -21,7 +21,6 @@ public class SyncXwJobInfoSo {
     private String message;
     private String creator;
     private Date endTime;
-    private String jobName;
     private Integer state;
 
 }

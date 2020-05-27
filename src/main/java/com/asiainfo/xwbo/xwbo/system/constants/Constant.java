@@ -80,11 +80,13 @@ public  class Constant {
         Integer DAIPAIMO = 1;	// 待摸排  还未有直销人员去实地确认过的企业状态
         Integer PAIMOZHONG = 2;	// 摸排中  当前有直销人员在实地摸排中的企业状态
         Integer YIPAIMO = 3;	    // 已摸排  已摸排完但未办理产品的企业
+        Integer DAICHULIRENPAIMO = 4;
         Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
             {
                 put(DAIPAIMO, "待摸排");
                 put(PAIMOZHONG, "摸排中");
                 put(YIPAIMO, "已摸排");
+                put(DAICHULIRENPAIMO, "待处理人排摸");
             }
         };
     }
@@ -127,14 +129,23 @@ public  class Constant {
     public interface XW_JOB_STATE {
         Integer DAICHULI = 1;	    //待处理
         Integer CHULIZHONG = 2;	    //处理中
-        Integer YICHAOSHI = 3;	//已超时
-        Integer YIWANCHENG = 4;	    //已完成
+        Integer YIWANCHENG = 3;	    //已完成
         Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
             {
                 put(DAICHULI, "待处理");
                 put(CHULIZHONG, "处理中");
-                put(YICHAOSHI, "已超时");
                 put(YIWANCHENG, "已完成");
+            }
+        };
+    }
+
+    public interface XW_JOB_TIMEOUT {
+        Integer FALSE = 0;	    //未超时
+        Integer TRUE = 1;	    //已超时
+        Map<Integer, String> MAPPER = new HashMap<Integer, String>(){
+            {
+                put(FALSE, "未超时");
+                put(TRUE, "已超时");
             }
         };
     }

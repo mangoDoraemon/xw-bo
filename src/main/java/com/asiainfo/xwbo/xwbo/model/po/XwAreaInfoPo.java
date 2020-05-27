@@ -18,6 +18,7 @@ public class XwAreaInfoPo {
     private String areaPid;
     private String areaLocation;
     private String areaInfo;
+    private String area_pid72;
     private String centralPoint;
 
 

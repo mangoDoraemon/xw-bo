@@ -75,9 +75,9 @@ public class XwIndustryClassInfoLoader {
             return null;
         }
         XwIndustryClassInfoPo po = keyMap.get(id);
-        if(null == po) {
-            update();
-        }
+//        if(null == po) {
+//            update();
+//        }
         return keyMap.get(id);
     }
 

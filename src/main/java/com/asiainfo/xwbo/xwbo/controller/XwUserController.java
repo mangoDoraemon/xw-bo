@@ -9,9 +9,11 @@ import com.asiainfo.xwbo.xwbo.model.so.LoginSo;
 import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
 import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
 import com.asiainfo.xwbo.xwbo.service.XwUserService;
+import com.asiainfo.xwbo.xwbo.system.Sign;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
 import com.asiainfo.xwbo.xwbo.utils.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,17 +32,14 @@ public class XwUserController {
     @Autowired
     private XwUserService xwUserService;
 
-    @RequestMapping("/areaInfo")
-    public AjaxResult areaInfo(@RequestBody XwUserInfoSo xwUserInfoSo) throws Exception {
-        return AjaxResult.markSuccess(xwUserService.areaInfo(xwUserInfoSo));
-    }
-
     @RequestMapping("/microInfo")
+    @Sign
     public AjaxResult microInfo(@RequestBody XwUserInfoSo xwUserInfoSo) throws Exception {
         return AjaxResult.markSuccess(xwUserService.microInfo(xwUserInfoSo));
     }
 
     @RequestMapping("/login")
+    @Sign
     public AjaxResult login(@RequestBody LoginSo loginSo, HttpServletRequest request) throws Exception {
 //        HttpSession session = request.getSession();
 //        System.out.println(session.getId());
@@ -57,8 +56,14 @@ public class XwUserController {
     }
 
     @RequestMapping("/qryInfo")
+    @Sign
     public AjaxResult qryInfo(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
         return AjaxResult.markSuccess(xwUserService.qryInfo(xwUserInfoSo));
+    }
+
+    @RequestMapping("/checkToken")
+    public AjaxResult checkToken(HttpServletRequest request) throws Exception {
+        return AjaxResult.markSuccess(xwUserService.checkToken(request));
     }
 
     @RequestMapping("/checkUserId")
@@ -67,13 +72,26 @@ public class XwUserController {
     }
 
     @RequestMapping("/qrySubordinates")
+    @Sign
     public AjaxResult qrySubordinates(@RequestBody QrySubordinatesSo qrySubordinatesSo, HttpServletRequest request) throws Exception {
         return AjaxResult.markSuccess(xwUserService.qrySubordinates(qrySubordinatesSo));
     }
 
+    @RequestMapping("/qrySubordinatesWorkDetail")
+    @Sign
+    public AjaxResult qrySubordinatesWorkDetail(@RequestBody QrySubordinatesSo qrySubordinatesSo, HttpServletRequest request) throws Exception {
+        return AjaxResult.markSuccess(xwUserService.qrySubordinatesWorkDetail(qrySubordinatesSo));
+    }
+
     @RequestMapping("/qrySubordinatesRoleList")
+    @Sign
     public AjaxResult qrySubordinates(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
         return AjaxResult.markSuccess(xwUserService.qrySubordinatesRoleList(xwUserInfoSo));
     }
+
+//    @RequestMapping("/getAes")
+//    public AjaxResult getAes(HttpServletRequest request, @PathVariable String userId) throws Exception {
+//        return AjaxResult.markSuccess(xwUserService.getAes(userId));
+//    }
 
 }

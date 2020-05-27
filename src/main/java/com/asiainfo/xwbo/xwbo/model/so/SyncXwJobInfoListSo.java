@@ -9,6 +9,6 @@ import java.util.List;
  * @create 2020-05-20 10:06
  */
 @Data
-public class SyncXwJobInfoListSo {
+public class SyncXwJobInfoListSo extends SignSo{
     private List<SyncXwJobInfoSo> list;
 }

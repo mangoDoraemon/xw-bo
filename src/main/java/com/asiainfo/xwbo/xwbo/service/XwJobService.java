@@ -6,6 +6,7 @@ import com.asiainfo.xwbo.xwbo.model.so.SyncXwJobInfoSo;
 import com.asiainfo.xwbo.xwbo.model.vo.PageResultVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwJobCountInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwJobInfoVo;
+import com.asiainfo.xwbo.xwbo.model.vo.XwJobStateInfoVo;
 
 import java.util.List;
 
@@ -30,6 +31,8 @@ public interface XwJobService {
     void acceptUpdateHandleMessage(SyncXwJobInfoSo syncXwJobInfoSo) throws Exception;
 
     void acceptUpdateState(SyncXwJobInfoSo syncXwJobInfoSo) throws Exception;
+
+    List<XwJobStateInfoVo> jobStateInfo();
 
 
 }

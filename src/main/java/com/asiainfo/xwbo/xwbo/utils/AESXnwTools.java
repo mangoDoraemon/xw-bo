@@ -119,13 +119,13 @@ public class AESXnwTools {
 //
 //        System.out.println("url="+url);
         // 需要加密的字串
-        String cSrc = "121316";
+        String cSrc = "121261";
        
         String enString =  AESXnwTools.getInstance().encrypt( cSrc );
         // 加密
         System.out.println( "加密后的字串是：" + enString );
         // 解密
-        String DeString = AESXnwTools.getInstance().decrypt( "wctEzyPj918e1zfYShrX7w==" );
+        String DeString = AESXnwTools.getInstance().decrypt( "FWI1oIwWyOwx8woV+2CSkQ==" );
         System.out.println( "解密后的字串是：" + DeString );
     }
 

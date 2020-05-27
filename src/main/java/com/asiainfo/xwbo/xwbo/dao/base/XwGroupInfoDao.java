@@ -24,4 +24,5 @@ public interface XwGroupInfoDao {
 
     List<XwGroupCaseItemInfoSo> qryCaseItemInfo(QryXwGroupInfoSo qryXwGroupInfoSo) ;
 
+    int updateHandleUser(XwGroupInfoPo xwGroupInfoPo);
 }

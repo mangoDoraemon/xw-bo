@@ -1,6 +1,7 @@
 package com.asiainfo.xwbo.xwbo.model.po;
 
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Table;
+import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Transient;
 import lombok.Data;
 
 import java.util.Date;
@@ -40,4 +41,7 @@ public class XwGroupInfoPo {
     private Date createTime;
     private String lastUpdator;
     private Date lastUpdateTime;
+
+    @Transient
+    private Integer newHandleState;
 }

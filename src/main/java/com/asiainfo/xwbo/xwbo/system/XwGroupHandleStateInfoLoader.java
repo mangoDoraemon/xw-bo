@@ -58,9 +58,9 @@ public class XwGroupHandleStateInfoLoader {
             return null;
         }
         XwGroupHandleStateInfoPo po = map.get(id);
-        if(null == po) {
-            update();
-        }
+//        if(null == po) {
+//            update();
+//        }
         return map.get(id);
     }
 

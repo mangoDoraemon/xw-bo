@@ -15,9 +15,10 @@ import java.util.Date;
 public class UserUtil {
 
     private static final String TOKEN_SECRET = "JO6HN3NGIU25G2FIG8V7VD6CK9B6T2Z5";
-    private static final long EXPIRE_TIME = 5 * 60 * 1000;
+    private static final long EXPIRE_TIME = 12 * 60 * 60 * 1000;
 
     public static String encryption(String password) {
+//        return MD5Util.encrypt(password);
         return password;
     }
 

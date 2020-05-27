@@ -6,6 +6,7 @@ import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jiahao jin
@@ -13,6 +14,8 @@ import java.util.List;
  */
 public interface XwAreaService {
     XwAreaInfoVo qryAreaInfo(QryAreaInfoSo qryAreaInfoSo) throws Exception;
+
+    Map<String, Double> getXwAreaRate(QryAreaInfoSo qryAreaInfoSo);
 
     List<XwAreaInfo> qryCascadeAreaInfo(QryAreaInfoSo qryAreaInfoSo) throws Exception;
 
