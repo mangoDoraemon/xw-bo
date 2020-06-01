@@ -5,6 +5,7 @@ import com.asiainfo.xwbo.xwbo.model.so.*;
 import com.asiainfo.xwbo.xwbo.model.vo.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jiahao jin
@@ -38,4 +39,6 @@ public interface XwGroupService {
     List<XwGroupHandleStateInfoVo> handleState();
 
     void delete(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception;
+
+    PageResultVo qryUserHandleInfo(QryUserHandleInfoSo qryUserHandleInfoSo);
 }

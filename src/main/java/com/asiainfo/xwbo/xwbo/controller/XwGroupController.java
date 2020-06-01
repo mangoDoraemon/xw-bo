@@ -1,12 +1,10 @@
 package com.asiainfo.xwbo.xwbo.controller;
 
 import com.asiainfo.xwbo.xwbo.model.AjaxResult;
-import com.asiainfo.xwbo.xwbo.model.so.QryPeripheryXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.QryXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.SyncXwGroupInfoSo;
-import com.asiainfo.xwbo.xwbo.model.so.UpdateHandleStateSo;
+import com.asiainfo.xwbo.xwbo.model.so.*;
 import com.asiainfo.xwbo.xwbo.service.XwGroupService;
 import com.asiainfo.xwbo.xwbo.system.Sign;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/group")
+@Slf4j
 public class XwGroupController {
 
     @Autowired
@@ -100,6 +99,15 @@ public class XwGroupController {
         xwGroupService.delete(qryXwGroupInfoSo);
         return AjaxResult.markSuccess();
     }
+
+    @RequestMapping("/qryUserHandleInfo")
+    @Sign
+    public AjaxResult qryUserHandleInfo(@RequestBody QryUserHandleInfoSo qryUserHandleInfoSo) throws Exception {
+
+        return AjaxResult.markSuccess(xwGroupService.qryUserHandleInfo(qryUserHandleInfoSo));
+    }
+
+
 
 
 }

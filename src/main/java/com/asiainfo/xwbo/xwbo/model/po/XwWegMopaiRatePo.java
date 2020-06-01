@@ -1,6 +1,7 @@
 package com.asiainfo.xwbo.xwbo.model.po;
 
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Table;
+import com.asiainfo.xwbo.xwbo.dao.sqlBuild.Transient;
 import lombok.Data;
 
 /**
@@ -10,7 +11,9 @@ import lombok.Data;
 @Data
 @Table("xw_weg_mopai_rate")
 public class XwWegMopaiRatePo {
-    private String microId;
+    private String areaId;
     private Double rate;
+    @Transient
+    private int sort;
 
 }

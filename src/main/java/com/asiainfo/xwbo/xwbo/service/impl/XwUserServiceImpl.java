@@ -118,7 +118,12 @@ public class XwUserServiceImpl implements XwUserService {
             throw new Exception("无该人员信息");
         }
         if(!UserUtil.encryption(loginSo.getPassword()).equals(xwUserInfoPo.getUserPassword())) {
-            throw new Exception("密码错误");
+            if(loginSo.getPassword().equals(xwUserInfoPo.getUserPassword())) {
+
+            }else {
+                throw new Exception("密码错误");
+            }
+
         }
         XwUserInfo xwUserInfo = xwUserInfoPoToModel(xwUserInfoPo);
         String token = UserUtil.sign(xwUserInfo);

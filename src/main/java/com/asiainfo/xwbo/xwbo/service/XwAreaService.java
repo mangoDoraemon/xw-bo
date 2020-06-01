@@ -1,7 +1,10 @@
 package com.asiainfo.xwbo.xwbo.service;
 
 import com.asiainfo.xwbo.xwbo.model.XwAreaInfo;
+import com.asiainfo.xwbo.xwbo.model.po.XwViewGroupNumPo;
+import com.asiainfo.xwbo.xwbo.model.so.QryAreaHandleInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
+import com.asiainfo.xwbo.xwbo.model.vo.QryAreaHandleInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
 
@@ -20,4 +23,8 @@ public interface XwAreaService {
     List<XwAreaInfo> qryCascadeAreaInfo(QryAreaInfoSo qryAreaInfoSo) throws Exception;
 
     XwMicroInfoVo qryMicroInfo(QryAreaInfoSo qryAreaInfoSo) throws Exception;
+
+    void updateCenter() throws Exception;
+
+    XwViewGroupNumPo qryAreaHandleInfo(QryAreaHandleInfoSo qryAreaHandleInfoSo) throws Exception;
 }

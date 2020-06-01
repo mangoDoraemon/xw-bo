@@ -1,7 +1,9 @@
 package com.asiainfo.xwbo.xwbo.controller;
 
 import com.asiainfo.xwbo.xwbo.model.AjaxResult;
+import com.asiainfo.xwbo.xwbo.model.so.QryAreaHandleInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
+import com.asiainfo.xwbo.xwbo.model.so.QryUserHandleInfoSo;
 import com.asiainfo.xwbo.xwbo.service.XwAreaService;
 import com.asiainfo.xwbo.xwbo.system.Sign;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,5 +46,19 @@ public class XwAreaController {
     @Sign
     public AjaxResult qryMicroInfo(@RequestBody QryAreaInfoSo qryAreaInfoSo, HttpServletRequest request) throws Exception {
         return AjaxResult.markSuccess(xwAreaService.qryMicroInfo(qryAreaInfoSo));
+    }
+
+    @RequestMapping("/updateCenter")
+    @Sign
+    public AjaxResult updateCenter() throws Exception {
+        xwAreaService.updateCenter();
+        return AjaxResult.markSuccess();
+    }
+
+    @RequestMapping("/qryAreaHandleInfo")
+    @Sign
+    public AjaxResult qryAreaHandleInfo(@RequestBody QryAreaHandleInfoSo qryAreaHandleInfoSo) throws Exception {
+
+        return AjaxResult.markSuccess(xwAreaService.qryAreaHandleInfo(qryAreaHandleInfoSo));
     }
 }

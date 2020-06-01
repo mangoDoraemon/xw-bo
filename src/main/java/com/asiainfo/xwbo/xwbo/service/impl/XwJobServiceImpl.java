@@ -138,7 +138,7 @@ public class XwJobServiceImpl implements XwJobService {
         }
         if(null != xwJobInfoPoList && xwJobInfoPoList.size() > 0) {
             for(XwJobInfoPo po : xwJobInfoPoList) {
-                xwJobInfoVoList.add(xwJobInfoPoToVo(po));
+                xwJobInfoVoList.add(xwJobInfoPoToVo(po, qryJobInfoSo));
             }
         }
         pageResultVo.setList(xwJobInfoVoList);
@@ -153,7 +153,7 @@ public class XwJobServiceImpl implements XwJobService {
             throw new Exception("处理人不能为空");
         }
         XwJobInfoPo po = qryXwJobPo(qryJobInfoSo);
-        return xwJobInfoPoToVo(po);
+        return xwJobInfoPoToVo(po, qryJobInfoSo);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class XwJobServiceImpl implements XwJobService {
             throw new Exception("创建人不能为空");
         }
         XwJobInfoPo po = qryXwJobPo(qryJobInfoSo);
-        return xwJobInfoPoToVo(po);
+        return xwJobInfoPoToVo(po, qryJobInfoSo);
     }
 
     @Override
@@ -189,6 +189,17 @@ public class XwJobServiceImpl implements XwJobService {
         po.setLastUpdator(syncXwJobInfoSo.getHandleUserId());
         po.setLastUpdateTime(new Date());
         commonExtDao.update(SqlBuilder.build(XwJobInfoPo.class).eq("job_id", syncXwJobInfoSo.getJobId()).eq("handle_user_id", syncXwJobInfoSo.getHandleUserId()), po);
+        UpdateHandleStateSo updateHandleStateSo = new UpdateHandleStateSo();
+        if(Constant.XW_JOB_STATE.CHULIZHONG == syncXwJobInfoSo.getState().intValue()) {
+            updateHandleStateSo.setUserId(syncXwJobInfoSo.getHandleUserId());
+            updateHandleStateSo.setHandleState(Constant.XW_GROUP_HANDLE_STATE.PAIMOZHONG);
+        }
+        if(Constant.XW_JOB_STATE.YIWANCHENG == syncXwJobInfoSo.getState().intValue()) {
+            updateHandleStateSo.setUserId(syncXwJobInfoSo.getHandleUserId());
+            updateHandleStateSo.setHandleState(Constant.XW_GROUP_HANDLE_STATE.YIPAIMO);
+        }
+
+        xwGroupService.changeHandleState(updateHandleStateSo);
     }
 
     @Override
@@ -252,7 +263,7 @@ public class XwJobServiceImpl implements XwJobService {
         return po;
     }
 
-    XwJobInfoVo xwJobInfoPoToVo(XwJobInfoPo po) throws Exception {
+    XwJobInfoVo xwJobInfoPoToVo(XwJobInfoPo po, QryJobInfoSo qryJobInfoSo) throws Exception {
         XwJobInfoVo vo = new XwJobInfoVo();
         Long groupId = po.getGroupId();
         vo.setJobId(po.getJobId());
@@ -260,6 +271,8 @@ public class XwJobServiceImpl implements XwJobService {
         qryXwGroupInfoSo.setGroupId(groupId);
         XwGroupInfoVo xwGroupInfoVo = null;
         try {
+            qryXwGroupInfoSo.setCurrentLng(qryJobInfoSo.getCurrentLng());
+            qryXwGroupInfoSo.setCurrentLat(qryJobInfoSo.getCurrentLat());
             xwGroupInfoVo = xwGroupService.qryInfo(qryXwGroupInfoSo);
 
         }catch (Exception e) {
@@ -275,7 +288,7 @@ public class XwJobServiceImpl implements XwJobService {
         vo.setHandleUserName(handleUserInfo.getUserName());
         vo.setState(po.getState());
         vo.setStateMessage(Constant.XW_JOB_STATE.MAPPER.get(po.getState()));
-        vo.setCreateTime(new DateTime(po.getCreateTime()).toString("yyyy-MM-dd"));
+        vo.setCreateTime(new DateTime(po.getCreateTime()).toString("yyyy-MM-dd  HH:mm:ss"));
         vo.setEndTime(new DateTime(po.getEndTime()).toString("yyyy-MM-dd"));
         vo.setIsTimeout(po.getIsTimeout());
         vo.setTimeoutMessage(Constant.XW_JOB_TIMEOUT.MAPPER.get(po.getIsTimeout()));

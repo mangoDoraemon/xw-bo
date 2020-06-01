@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserHandleInfoPo;
+import com.asiainfo.xwbo.xwbo.model.so.XwSignSo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -52,11 +53,12 @@ public class SignInterceptor implements HandlerInterceptor {
             	throw new RuntimeException("缺少签名对象信息");
             }
             JSONObject jo = JSON.parseObject(jsonBody);
-            String signId = JSON.parseObject(jo.getString("signId"), String.class);
+            XwSignSo sign = JSON.parseObject(jo.getString("sign"), XwSignSo.class);
 			XwUserHandleInfoPo xwUserHandleInfoPo = new XwUserHandleInfoPo();
-			xwUserHandleInfoPo.setUserId(signId);
+			xwUserHandleInfoPo.setUserId(sign.getSignId());
 			xwUserHandleInfoPo.setUrl(request.getServletPath());
 			xwUserHandleInfoPo.setParams(jo.toJSONString());
+			xwUserHandleInfoPo.setType(sign.getType());
 			xwUserHandleInfoPo.setCreateTime(new Date());
 			commonExtDao.save(SqlBuilder.build(XwUserHandleInfoPo.class), xwUserHandleInfoPo);
 		}

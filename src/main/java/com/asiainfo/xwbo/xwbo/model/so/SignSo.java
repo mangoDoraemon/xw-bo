@@ -11,5 +11,5 @@ import lombok.Data;
  */
 @Data
 public class SignSo {
-	private String signId;
+	private XwSignSo sign;
 }

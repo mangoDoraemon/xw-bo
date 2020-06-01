@@ -13,4 +13,6 @@ public class XwAreaInfo {
     private String center;
     private String areaLocation;
     private List<XwAreaInfo> child;
+    private Double rate;
+    private Integer sort;
 }

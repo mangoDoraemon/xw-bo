@@ -16,6 +16,7 @@ import com.asiainfo.xwbo.xwbo.system.XwGroupHandleStateInfoLoader;
 import com.asiainfo.xwbo.xwbo.system.XwGroupManagementStateInfoLoader;
 import com.asiainfo.xwbo.xwbo.system.XwIndustryClassInfoLoader;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
+import com.asiainfo.xwbo.xwbo.utils.DateUtil;
 import com.asiainfo.xwbo.xwbo.utils.DistanceUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -99,9 +101,6 @@ public class XwGroupServiceImpl implements XwGroupService {
         PageResultVo pageResultVo = new PageResultVo();
         XwGroupInfoQryAllInner inner = new XwGroupInfoQryAllInner(qryPeripheryXwGroupInfoSo).invoke();
         List<XwGroupInfoPo> xwGroupInfoPoList = inner.getXwGroupInfoPoList();
-        long total = inner.getTotal();
-        long time2 = new Date().getTime();
-        System.out.println("time2 - time1： "+(time2 - time1));
 //        List<XwGroupInfoVo> xwGroupInfoVoList = inner.getXwGroupInfoVoList();
         StringBuffer stringBuffer = new StringBuffer();
         byte[] bytes = {0x01};
@@ -258,7 +257,6 @@ public class XwGroupServiceImpl implements XwGroupService {
         xwGroupInfoPo.setLastUpdator(userId);
         xwGroupInfoPo.setLastUpdateTime(nowDate);
         xwGroupInfoPo.setNewHandleState(newState);
-        System.out.println(JSONObject.toJSONString(xwGroupInfoPo));
         int updateRow = xwGroupInfoDao.updateHandleUser(xwGroupInfoPo);
         if(updateRow != 1) {
             throw new Exception("集团ID: " + groupId + " 已处理");
@@ -309,6 +307,29 @@ public class XwGroupServiceImpl implements XwGroupService {
             throw new Exception("集团id不能为空");
         }
         commonExtDao.delete(SqlBuilder.build(XwGroupInfoPo.class).eq("id", id));
+    }
+
+    @Override
+    public PageResultVo qryUserHandleInfo(QryUserHandleInfoSo qryUserHandleInfoSo) {
+        PageResultVo pageResultVo = new PageResultVo();
+        List<QryUserHandleInfoVo> list = new ArrayList<>();
+        String startTime = qryUserHandleInfoSo.getStartTime();
+        String endTime = qryUserHandleInfoSo.getEndTime();
+        List<String> allDays = DateUtil.days(startTime, endTime);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        List<XwGroupInfoPo> xwGroupInfoPoList = xwGroupInfoDao.qryUserHandleInfo(qryUserHandleInfoSo);
+        Map<String, List<XwGroupInfoPo>> collect = xwGroupInfoPoList.stream().collect(Collectors.groupingBy(
+                po -> sdf.format(po.getLastHandleTime())));
+        if(allDays.size() > 0) {
+            for(String day : allDays) {
+                QryUserHandleInfoVo vo = new QryUserHandleInfoVo();
+                vo.setDate(day);
+                vo.setCount(collect.get(day)==null? 0 : collect.get(day).size());
+                list.add(vo);
+            }
+        }
+        pageResultVo.setList(list);
+        return pageResultVo;
     }
 
 
@@ -490,8 +511,6 @@ public class XwGroupServiceImpl implements XwGroupService {
 
 
             }
-            long time6 = new Date().getTime();
-            System.out.println("time6 - time5： "+(time6 - time5));
             xwGroupInfoVoList = new ArrayList<>();
             if(StringUtils.isNotBlank(pageNum) && StringUtils.isNotBlank(pageSize)) {
                 Page pageInfo = PageHelper.startPage(Integer.valueOf(pageNum), Integer.valueOf(pageSize));
@@ -501,8 +520,6 @@ public class XwGroupServiceImpl implements XwGroupService {
                 xwGroupInfoPoList = xwGroupDao.qryAll(qryPeripheryXwGroupInfoSo);
                 total = xwGroupInfoPoList.size();
             }
-            long time7 = new Date().getTime();
-            System.out.println("time6 - time5： "+(time7 - time6));
             return this;
         }
     }

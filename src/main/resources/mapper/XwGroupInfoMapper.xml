@@ -148,4 +148,7 @@
 
     </update>
 
+    <select id="qryUserHandleInfo" parameterType="com.asiainfo.xwbo.xwbo.model.so.QryUserHandleInfoSo" resultMap="baseResultMap">
+        select * from xw_group_info where last_handle_user = #{userId} and handle_state = 3 and (last_handle_time >= DATE(#{startTime}) and date_add(#{endTime}, INTERVAL 1 DAY) )
+    </select>
 </mapper>

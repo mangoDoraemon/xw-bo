@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.AjaxResult;
 import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
+import com.asiainfo.xwbo.xwbo.model.po.XwGroupInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
 import com.asiainfo.xwbo.xwbo.model.so.LoginSo;
 import com.asiainfo.xwbo.xwbo.model.so.QrySubordinatesSo;
+import com.asiainfo.xwbo.xwbo.model.so.QryUserHandleInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.XwUserInfoSo;
 import com.asiainfo.xwbo.xwbo.service.XwUserService;
 import com.asiainfo.xwbo.xwbo.system.Sign;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @author jiahao jin
@@ -85,13 +88,14 @@ public class XwUserController {
 
     @RequestMapping("/qrySubordinatesRoleList")
     @Sign
-    public AjaxResult qrySubordinates(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
+    public AjaxResult qrySubordinatesRoleList(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
         return AjaxResult.markSuccess(xwUserService.qrySubordinatesRoleList(xwUserInfoSo));
     }
 
-//    @RequestMapping("/getAes")
-//    public AjaxResult getAes(HttpServletRequest request, @PathVariable String userId) throws Exception {
-//        return AjaxResult.markSuccess(xwUserService.getAes(userId));
-//    }
+    @RequestMapping("/getAes/{userId}")
+    public AjaxResult getAes(HttpServletRequest request, @PathVariable String userId) throws Exception {
+//        return AjaxResult.markSuccess();
+        return AjaxResult.markSuccess(xwUserService.getAes(userId));
+    }
 
 }

@@ -1,24 +1,26 @@
 package com.asiainfo.xwbo.xwbo.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
 import com.asiainfo.xwbo.xwbo.model.XwAreaInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwAreaInfoPo;
+import com.asiainfo.xwbo.xwbo.model.po.XwViewGroupNumPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwWegMopaiRatePo;
+import com.asiainfo.xwbo.xwbo.model.so.QryAreaHandleInfoSo;
 import com.asiainfo.xwbo.xwbo.model.so.QryAreaInfoSo;
+import com.asiainfo.xwbo.xwbo.model.vo.QryAreaHandleInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwAreaInfoVo;
 import com.asiainfo.xwbo.xwbo.model.vo.XwMicroInfoVo;
 import com.asiainfo.xwbo.xwbo.service.XwAreaService;
 import com.asiainfo.xwbo.xwbo.system.constants.Constant;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,10 +46,14 @@ public class XwAreaServiceImpl implements XwAreaService {
         xwAreaInfoVo.setPath(path);
         XwAreaInfo parentXwAreaInfo = xwAreaInfoPoToModel(parentXwAreaInfoPo);
         List<XwAreaInfo> childXeAreaInfoList = new ArrayList<>();
+        Set<String> areaIdSet = new HashSet<>();
         if(qryAreaInfoSo.getAreaLevel().intValue() <= Constant.XW_AREA_LEVEL.COUNTY.intValue()) {
             List<XwAreaInfoPo> childXwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid", qryAreaInfoSo.getAreaId()));
             if(null != childXwAreaInfoPoList && childXwAreaInfoPoList.size() > 0) {
-                childXeAreaInfoList = childXwAreaInfoPoList.stream().map(po -> xwAreaInfoPoToModel(po)).collect(Collectors.toList());
+                for(XwAreaInfoPo xwAreaInfoPo : childXwAreaInfoPoList) {
+                    areaIdSet.add(xwAreaInfoPo.getAreaId());
+                    childXeAreaInfoList.add(xwAreaInfoPoToModel(xwAreaInfoPo));
+                }
 
             }
         }else if(Constant.XW_AREA_LEVEL.GRID.equals(qryAreaInfoSo.getAreaLevel())) {
@@ -57,11 +63,13 @@ public class XwAreaServiceImpl implements XwAreaService {
             if(null != child72XwAreaInfoPoList && child72XwAreaInfoPoList.size() > 0) {
                 for(XwAreaInfoPo po72 : child72XwAreaInfoPoList) {
                     //根据微格查所有小区 area_level = 7
+                    areaIdSet.add(po72.getAreaId());
                     List<XwAreaInfoPo> child7XwAreaInfoPoList =
                             commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class).eq("area_pid72", po72.getAreaId()));
                     if(null != child7XwAreaInfoPoList && child7XwAreaInfoPoList.size() > 0) {
                         for(XwAreaInfoPo po7 : child7XwAreaInfoPoList) {
                             XwAreaInfo xwAreaInfo7 = xwAreaInfoPoToModel(po7);
+                            xwAreaInfo7.setAreaId(po72.getAreaId());
                             xwAreaInfo7.setAreaPid(qryAreaInfoSo.getAreaId());
                             childXeAreaInfoList.add(xwAreaInfo7);
                         }
@@ -79,6 +87,11 @@ public class XwAreaServiceImpl implements XwAreaService {
                 }
             }
         }
+        Map<String, XwWegMopaiRatePo> areaRateMap = getXwAreaRate(areaIdSet);
+        for(XwAreaInfo childXwAreaInfo : childXeAreaInfoList) {
+            childXwAreaInfo.setRate(areaRateMap.get(childXwAreaInfo.getAreaId())==null? 0D:areaRateMap.get(childXwAreaInfo.getAreaId()).getRate());
+            childXwAreaInfo.setSort(areaRateMap.get(childXwAreaInfo.getSort())==null? 11:areaRateMap.get(childXwAreaInfo.getSort()).getSort());
+        }
         parentXwAreaInfo.setChild(childXeAreaInfoList);
         xwAreaInfoVo.setMap(parentXwAreaInfo);
         return xwAreaInfoVo;
@@ -88,9 +101,35 @@ public class XwAreaServiceImpl implements XwAreaService {
     public Map<String, Double> getXwAreaRate(QryAreaInfoSo qryAreaInfoSo) {
         List<String>  areaIdList = qryAreaInfoSo.getAreaIdList();
         Map<String, Double> map = new HashMap<>();
-        List<XwWegMopaiRatePo> xwWegMopaiRatePoList = commonExtDao.query(SqlBuilder.build(XwWegMopaiRatePo.class).in("micro_id", areaIdList));
+        List<XwWegMopaiRatePo> xwWegMopaiRatePoList = commonExtDao.query(SqlBuilder.build(XwWegMopaiRatePo.class).in("area_id", areaIdList));
         if(null != xwWegMopaiRatePoList && xwWegMopaiRatePoList.size() > 0) {
-            map = xwWegMopaiRatePoList.stream().collect(Collectors.toMap(XwWegMopaiRatePo :: getMicroId, po -> po.getRate()));
+            map = xwWegMopaiRatePoList.stream().collect(Collectors.toMap(XwWegMopaiRatePo :: getAreaId, po -> po.getRate()));
+        }
+        return map;
+    }
+
+    public Map<String, XwWegMopaiRatePo> getXwAreaRate(Set areaIdSet) {
+        Map<String, XwWegMopaiRatePo> map = new HashMap<>();
+        List<XwWegMopaiRatePo> xwWegMopaiRatePoList = commonExtDao.query(SqlBuilder.build(XwWegMopaiRatePo.class).in("area_id", areaIdSet));
+        if(null != xwWegMopaiRatePoList && xwWegMopaiRatePoList.size() > 0) {
+//            map = xwWegMopaiRatePoList.stream().collect(Collectors.toMap(XwWegMopaiRatePo :: getAreaId, po -> po.getRate()));\
+            if(null != xwWegMopaiRatePoList && xwWegMopaiRatePoList.size() > 0) {
+                if(xwWegMopaiRatePoList.size() == 1) {
+                    xwWegMopaiRatePoList.get(0).setSort(1);
+                }else if(xwWegMopaiRatePoList.size() == 2) {
+                    xwWegMopaiRatePoList.get(0).setSort(1);
+                    xwWegMopaiRatePoList.get(1).setSort(11);
+                }else {
+                    xwWegMopaiRatePoList.get(0).setSort(1);
+                    xwWegMopaiRatePoList.get(xwWegMopaiRatePoList.size() - 1).setSort(11);
+                    int sub = 11/(xwWegMopaiRatePoList.size() - 1);
+                    for(int i = 1; i < xwWegMopaiRatePoList.size()-1; i++) {
+                        xwWegMopaiRatePoList.get(i).setSort(xwWegMopaiRatePoList.get(i-1).getSort() + sub);
+                    }
+                }
+
+                map = xwWegMopaiRatePoList.stream().collect(Collectors.toMap(XwWegMopaiRatePo :: getAreaId, po -> po));
+            }
         }
         return map;
     }
@@ -143,6 +182,44 @@ public class XwAreaServiceImpl implements XwAreaService {
         List<XwAreaInfo> areaInfoList = parentXwAreaInfoPoList.stream().map(po -> xwAreaInfoPoToModel(po)).collect(Collectors.toList());
         xwMicroInfoVo.setXwMicroInfoList(areaInfoList);
         return xwMicroInfoVo;
+    }
+
+    @Override
+    public void updateCenter() throws Exception {
+        List<XwAreaInfoPo> parentXwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class));
+        for(XwAreaInfoPo po : parentXwAreaInfoPoList) {
+            if(StringUtils.isNotBlank(po.getAreaLocation())) {
+                String[] arr = po.getAreaLocation().split(";");
+                int total = arr.length;
+                double X = 0, Y = 0, Z = 0;
+                for(int i=0;i<arr.length;i++){
+                    double lat, lon, x, y, z;
+                    lon = Double.parseDouble(arr[i].split(",")[0]) * Math.PI / 180;
+                    lat = Double.parseDouble(arr[i].split(",")[1]) * Math.PI / 180;
+                    x = Math.cos(lat) * Math.cos(lon);
+                    y = Math.cos(lat) * Math.sin(lon);
+                    z = Math.sin(lat);
+                    X += x;
+                    Y += y;
+                    Z += z;
+                }
+
+                X = X / total;
+                Y = Y / total;
+                Z = Z / total;
+                double Lon = Math.atan2(Y, X);
+                double Hyp = Math.sqrt(X * X + Y * Y);
+                double Lat = Math.atan2(Z, Hyp);
+                po.setCentralPoint(""+(Lon * 180 / Math.PI)+","+(Lat * 180 / Math.PI));
+                commonExtDao.update(SqlBuilder.build(XwAreaInfoPo.class).eq("area_id", po.getAreaId()), po);
+            }
+        }
+    }
+
+    @Override
+    public XwViewGroupNumPo qryAreaHandleInfo(QryAreaHandleInfoSo qryAreaHandleInfoSo) throws Exception {
+        XwViewGroupNumPo po = commonExtDao.queryForObject(SqlBuilder.build(XwViewGroupNumPo.class).eq("area_id", qryAreaHandleInfoSo.getAreaId()));
+        return po;
     }
 
     private XwAreaInfo xwAreaInfoPoToModel(XwAreaInfoPo xwAreaInfoPo) {

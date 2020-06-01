@@ -16,5 +16,6 @@ public class XwUserHandleInfoPo {
     private String url;
     private String params;
     private String result;
+    private String type;
     private Date createTime;
 }

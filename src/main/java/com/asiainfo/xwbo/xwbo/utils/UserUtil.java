@@ -19,15 +19,13 @@ public class UserUtil {
 
     public static String encryption(String password) {
 //        return MD5Util.encrypt(password);
-        return password;
+        return  MD5Util.encrypt(password);
     }
 
     public static String sign(XwUserInfo xwUserInfo) {
 
         Date nowDate = new Date();
-        System.out.println("开始时间： "+nowDate.getTime());
         Date expireDate = new Date(nowDate.getTime() + EXPIRE_TIME);
-        System.out.println("到期时间： "+expireDate.getTime());
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setSubject(xwUserInfo.getUserId() + "")
