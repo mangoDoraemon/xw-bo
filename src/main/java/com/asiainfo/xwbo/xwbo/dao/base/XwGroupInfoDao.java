@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jiahao jin
@@ -24,4 +25,7 @@ public interface XwGroupInfoDao {
     int updateHandleUser(XwGroupInfoPo xwGroupInfoPo);
 
     List<XwGroupInfoPo> qryUserHandleInfo(QryUserHandleInfoSo qryUserHandleInfoSo);
+
+    void callProduct(Map callParams);
+    void callHyal(Map callParams);
 }

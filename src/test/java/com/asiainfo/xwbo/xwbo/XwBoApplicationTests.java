@@ -18,5 +18,6 @@ class XwBoApplicationTests {
         m.put(new Long(300000L), "1");
         m.put(new Long(300000L), "1");
         System.out.println(m);
+//        Thread
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 public class XwAreaInfo {
     private String areaName;
     private String areaId;
+    private String microId;
     private Integer areaLevel;
     private String areaPid;
     private String center;

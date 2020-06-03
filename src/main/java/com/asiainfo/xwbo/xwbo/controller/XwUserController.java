@@ -42,7 +42,6 @@ public class XwUserController {
     }
 
     @RequestMapping("/login")
-    @Sign
     public AjaxResult login(@RequestBody LoginSo loginSo, HttpServletRequest request) throws Exception {
 //        HttpSession session = request.getSession();
 //        System.out.println(session.getId());

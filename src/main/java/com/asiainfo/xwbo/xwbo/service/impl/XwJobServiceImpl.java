@@ -198,7 +198,7 @@ public class XwJobServiceImpl implements XwJobService {
             updateHandleStateSo.setUserId(syncXwJobInfoSo.getHandleUserId());
             updateHandleStateSo.setHandleState(Constant.XW_GROUP_HANDLE_STATE.YIPAIMO);
         }
-
+        updateHandleStateSo.setGroupId(po.getGroupId());
         xwGroupService.changeHandleState(updateHandleStateSo);
     }
 

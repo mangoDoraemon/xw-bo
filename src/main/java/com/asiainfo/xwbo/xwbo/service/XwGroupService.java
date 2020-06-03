@@ -41,4 +41,5 @@ public interface XwGroupService {
     void delete(QryXwGroupInfoSo qryXwGroupInfoSo) throws Exception;
 
     PageResultVo qryUserHandleInfo(QryUserHandleInfoSo qryUserHandleInfoSo);
+
 }

@@ -199,6 +199,7 @@ public class XwGroupServiceImpl implements XwGroupService {
 
             syncXwGroupInfoSo.setId(groupId);
 
+
         }else {
             //修改
             xwGroupInfoPo = qryGroupInfoPo(groupId);
@@ -223,6 +224,14 @@ public class XwGroupServiceImpl implements XwGroupService {
         if(xwGroupMemberInfoPoList.size() > 0) {
             commonExtDao.save(SqlBuilder.build(XwGroupMemberInfoPo.class), xwGroupMemberInfoPoList);
         }
+
+        Map<String, Object> callParams = new HashMap<>();
+        callParams.put("groupId", syncXwGroupInfoSo.getId());
+        callParams.put("countyId", syncXwGroupInfoSo.getCountyId());
+        callParams.put("firstClass", syncXwGroupInfoSo.getFirstClass());
+        callParams.put("secondClass", syncXwGroupInfoSo.getSecondClass());
+        xwGroupInfoDao.callProduct(callParams);
+        xwGroupInfoDao.callHyal(callParams);
     }
 
     @Override
@@ -331,6 +340,7 @@ public class XwGroupServiceImpl implements XwGroupService {
         pageResultVo.setList(list);
         return pageResultVo;
     }
+
 
 
     private XwGroupMemberInfoPo xwGroupMemberInfoSoToPo(XwGroupMemberInfoSo xwGroupMemberInfoSo, SyncXwGroupInfoSo syncXwGroupInfoSo) {

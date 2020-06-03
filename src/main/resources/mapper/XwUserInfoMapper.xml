@@ -30,10 +30,10 @@
         SELECT * FROM xw_user_info
         <where>
             <if test="null != qryName and '' != qryName">
-                user_name like concat('%', #{qryName}, '%')
+                and user_name like concat('%', #{qryName}, '%')
             </if>
             <if test="null != qryCode and '' != qryCode">
-                user_code like concat('%', #{qryCode}, '%')
+                and user_code like concat('%', #{qryCode}, '%')
             </if>
             <if test="null != areaLevel">
                 <if test="1 == areaLevel">
