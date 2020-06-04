@@ -14,10 +14,23 @@ class XwBoApplicationTests {
 //    }
 
     public static void main(String[] args) {
-        Map<Long, String> m = new HashMap<>();
-        m.put(new Long(300000L), "1");
-        m.put(new Long(300000L), "1");
-        System.out.println(m);
+//        Map<Long, String> m = new HashMap<>();
+//        m.put(new Long(300000L), "1");
+//        m.put(new Long(300000L), "1");
+//        System.out.println(m);
 //        Thread
+        A a = new A();
+        a.setA(true == false? 0D:new A().getA());
+    }
+}
+class A {
+    Double a;
+
+    public Double getA() {
+        return a;
+    }
+
+    public void setA(Double a) {
+        this.a = a;
     }
 }

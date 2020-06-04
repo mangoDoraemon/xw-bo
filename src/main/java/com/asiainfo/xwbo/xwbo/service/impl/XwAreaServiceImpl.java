@@ -91,12 +91,8 @@ public class XwAreaServiceImpl implements XwAreaService {
             }
         }
         Map<String, XwWegMopaiRatePo> areaRateMap = getXwAreaRate(areaIdSet);
-        System.out.println(JSONObject.toJSONString(areaRateMap));
         for(XwAreaInfo childXwAreaInfo : childXeAreaInfoList) {
-            //System.out.println(childXwAreaInfo.getAreaId());
-            //System.out.println(areaRateMap.get(childXwAreaInfo.getAreaId()));
             XwWegMopaiRatePo xwWegMopaiRatePo = areaRateMap.get(childXwAreaInfo.getAreaId());
-            System.out.println(xwWegMopaiRatePo);
             if(xwWegMopaiRatePo==null){
                 childXwAreaInfo.setRate(0D);
                 childXwAreaInfo.setSort(11);
@@ -104,8 +100,12 @@ public class XwAreaServiceImpl implements XwAreaService {
                 childXwAreaInfo.setRate(xwWegMopaiRatePo.getRate()==null? 0D:xwWegMopaiRatePo.getRate());
                 childXwAreaInfo.setSort(xwWegMopaiRatePo.getSort());
             }
-//
-        }
+//            System.out.println(xwWegMopaiRatePo);
+//            childXwAreaInfo.setRate(xwWegMopaiRatePo==null? 0D:xwWegMopaiRatePo.getRate());
+//            childXwAreaInfo.setSort(xwWegMopaiRatePo==null? 11:xwWegMopaiRatePo.getSort());
+
+
+    }
         parentXwAreaInfo.setChild(childXeAreaInfoList);
         xwAreaInfoVo.setMap(parentXwAreaInfo);
         return xwAreaInfoVo;
