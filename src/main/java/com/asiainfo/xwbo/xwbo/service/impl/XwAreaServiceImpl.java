@@ -203,29 +203,33 @@ public class XwAreaServiceImpl implements XwAreaService {
         List<XwAreaInfoPo> parentXwAreaInfoPoList = commonExtDao.query(SqlBuilder.build(XwAreaInfoPo.class));
         for(XwAreaInfoPo po : parentXwAreaInfoPoList) {
             if(StringUtils.isNotBlank(po.getAreaLocation())) {
-                String[] arr = po.getAreaLocation().split(";");
-                int total = arr.length;
-                double X = 0, Y = 0, Z = 0;
-                for(int i=0;i<arr.length;i++){
-                    double lat, lon, x, y, z;
-                    lon = Double.parseDouble(arr[i].split(",")[0]) * Math.PI / 180;
-                    lat = Double.parseDouble(arr[i].split(",")[1]) * Math.PI / 180;
-                    x = Math.cos(lat) * Math.cos(lon);
-                    y = Math.cos(lat) * Math.sin(lon);
-                    z = Math.sin(lat);
-                    X += x;
-                    Y += y;
-                    Z += z;
-                }
+                try {
+                    String[] arr = po.getAreaLocation().split(";");
+                    int total = arr.length;
+                    double X = 0, Y = 0, Z = 0;
+                    for(int i=0;i<arr.length;i++){
+                        double lat, lon, x, y, z;
+                        lon = Double.parseDouble(arr[i].split(",")[0]) * Math.PI / 180;
+                        lat = Double.parseDouble(arr[i].split(",")[1]) * Math.PI / 180;
+                        x = Math.cos(lat) * Math.cos(lon);
+                        y = Math.cos(lat) * Math.sin(lon);
+                        z = Math.sin(lat);
+                        X += x;
+                        Y += y;
+                        Z += z;
+                    }
 
-                X = X / total;
-                Y = Y / total;
-                Z = Z / total;
-                double Lon = Math.atan2(Y, X);
-                double Hyp = Math.sqrt(X * X + Y * Y);
-                double Lat = Math.atan2(Z, Hyp);
-                po.setCentralPoint(""+(Lon * 180 / Math.PI)+","+(Lat * 180 / Math.PI));
-                commonExtDao.update(SqlBuilder.build(XwAreaInfoPo.class).eq("area_id", po.getAreaId()), po);
+                    X = X / total;
+                    Y = Y / total;
+                    Z = Z / total;
+                    double Lon = Math.atan2(Y, X);
+                    double Hyp = Math.sqrt(X * X + Y * Y);
+                    double Lat = Math.atan2(Z, Hyp);
+                    po.setCentralPoint(""+(Lon * 180 / Math.PI)+","+(Lat * 180 / Math.PI));
+                    commonExtDao.update(SqlBuilder.build(XwAreaInfoPo.class).eq("area_id", po.getAreaId()), po);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
