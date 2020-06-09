@@ -16,10 +16,7 @@ public class MD5Util {
     private static Logger log = LoggerFactory.getLogger(MD5Util.class);
 
     //盐，用于混交md5
-    private static final String slat = "cba321#@!";
     public static String encrypt(String dataStr) {
-        dataStr = dataStr + slat;
-        log.info(dataStr);
         try {
            return DigestUtils.md5Hex(dataStr.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -40,6 +37,7 @@ public class MD5Util {
     }
 
     public static void main(String[] args) {
+        System.out.println(encrypt("22436870"));
 //        String userId = "zhangweixing1";
 //        String mobile = "13867059550";
 //        long timestamp = System.currentTimeMillis();
@@ -55,9 +53,9 @@ public class MD5Util {
 //        DateTime endTime = new DateTime();
 //        DateTime startDate = new DateTime();
 //        int days= Days.daysBetween(startDate, endTime).getDays();
-        byte[] bytes = {0x01};
-        String tesult = new String(bytes);
-        System.out.println(Arrays.toString("   ".split(tesult)));
+//        byte[] bytes = {0x01};
+//        String tesult = new String(bytes);
+//        System.out.println(Arrays.toString("   ".split(tesult)));
 
     }
 
