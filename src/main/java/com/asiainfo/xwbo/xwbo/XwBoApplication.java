@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class XwBoApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(XwBoApplication.class, args);
     }
 

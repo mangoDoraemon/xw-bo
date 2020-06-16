@@ -119,7 +119,7 @@ public class AESXnwTools {
 //
 //        System.out.println("url="+url);
         // 需要加密的字串
-        String cSrc = "140276";
+        String cSrc = "121315";
        
         String enString =  AESXnwTools.getInstance().encrypt( cSrc );
         // 加密
