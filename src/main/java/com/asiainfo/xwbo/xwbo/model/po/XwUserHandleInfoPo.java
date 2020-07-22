@@ -18,4 +18,6 @@ public class XwUserHandleInfoPo {
     private String result;
     private String type;
     private Date createTime;
+    private String cityId;
+    private String feature;
 }
