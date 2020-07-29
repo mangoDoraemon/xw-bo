@@ -54,6 +54,7 @@ public class XwUserController {
 //        } else {
 //            System.out.println("存在session");
 //        }
+        request.getSession().setAttribute(Constant.SESSION_KEY, xwUserInfo);
         return AjaxResult.markSuccess(xwUserInfo);
     }
 
@@ -70,7 +71,10 @@ public class XwUserController {
 
     @RequestMapping("/checkUserId")
     public AjaxResult checkUserId(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
-        return AjaxResult.markSuccess(xwUserService.checkUserId(xwUserInfoSo));
+        XwUserInfo xwUserInfo = null;
+        xwUserInfo = xwUserService.checkUserId(xwUserInfoSo);
+        request.getSession().setAttribute(Constant.SESSION_KEY, xwUserInfo);
+        return AjaxResult.markSuccess(xwUserInfo);
     }
 
     @RequestMapping("/qrySubordinates")
