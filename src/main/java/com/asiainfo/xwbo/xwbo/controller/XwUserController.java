@@ -54,7 +54,6 @@ public class XwUserController {
 //        } else {
 //            System.out.println("存在session");
 //        }
-        request.getSession().setAttribute(Constant.SESSION_KEY, xwUserInfo);
         return AjaxResult.markSuccess(xwUserInfo);
     }
 
@@ -73,7 +72,8 @@ public class XwUserController {
     public AjaxResult checkUserId(@RequestBody XwUserInfoSo xwUserInfoSo, HttpServletRequest request) throws Exception {
         XwUserInfo xwUserInfo = null;
         xwUserInfo = xwUserService.checkUserId(xwUserInfoSo);
-        request.getSession().setAttribute(Constant.SESSION_KEY, xwUserInfo);
+        String token = UserUtil.sign(xwUserInfo);
+        xwUserInfo.setToken(token);
         return AjaxResult.markSuccess(xwUserInfo);
     }
 

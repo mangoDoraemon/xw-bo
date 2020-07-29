@@ -5,7 +5,6 @@ package com.asiainfo.xwbo.xwbo.system.config;
  * @create 2020-05-12 14:26
  */
 import com.asiainfo.xwbo.xwbo.system.FilterConfig;
-import com.asiainfo.xwbo.xwbo.system.SessionInterceptor;
 import com.asiainfo.xwbo.xwbo.system.SignInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
@@ -19,9 +18,6 @@ public class SpringMVCConfig extends WebMvcConfigurerAdapter{
     private FilterConfig filterConfig;
 
     @Bean
-    public SessionInterceptor sessionInterceptor() {return new SessionInterceptor();}
-
-    @Bean
     public SignInterceptor signInterceptor() {
         return new SignInterceptor();
     }
@@ -29,6 +25,5 @@ public class SpringMVCConfig extends WebMvcConfigurerAdapter{
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(filterConfig).addPathPatterns("/**");
         registry.addInterceptor(signInterceptor()).addPathPatterns("/**");
-        registry.addInterceptor(sessionInterceptor()).addPathPatterns("/**").excludePathPatterns("/user/login","/user/checkUserId","/index.html","/","classpath:/**","/static/**");
     }
 }

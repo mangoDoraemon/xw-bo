@@ -79,16 +79,19 @@ public class XwGroupController {
     }
 
     @RequestMapping("/industryClass")
+    @Sign
     public AjaxResult industryClass() throws Exception {
         return AjaxResult.markSuccess(xwGroupService.industryClass());
     }
 
     @RequestMapping("/managementState")
+    @Sign
     public AjaxResult managementState() throws Exception {
         return AjaxResult.markSuccess(xwGroupService.managementState());
     }
 
     @RequestMapping("/handleState")
+    @Sign
     public AjaxResult handleState() throws Exception {
         return AjaxResult.markSuccess(xwGroupService.handleState());
     }

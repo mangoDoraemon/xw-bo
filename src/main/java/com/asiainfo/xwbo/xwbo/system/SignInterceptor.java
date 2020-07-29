@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.asiainfo.xwbo.xwbo.dao.ICommonExtDao;
 import com.asiainfo.xwbo.xwbo.dao.sqlBuild.SqlBuilder;
+import com.asiainfo.xwbo.xwbo.model.XwUserInfo;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserHandleInfoPo;
 import com.asiainfo.xwbo.xwbo.model.po.XwUserInfoPo;
 import com.asiainfo.xwbo.xwbo.model.so.XwSignSo;
+import com.asiainfo.xwbo.xwbo.service.XwUserService;
+import com.asiainfo.xwbo.xwbo.utils.UserUtil;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.method.HandlerMethod;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 public class SignInterceptor implements HandlerInterceptor {
@@ -29,9 +34,9 @@ public class SignInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object obj) throws Exception {
 		//检查签名
-//		if(!validSign(req, obj)){
-//			return false;
-//		}
+		if(!validSign(req, obj)){
+			return false;
+		}
 		return true;
 	}
 
@@ -90,21 +95,25 @@ public class SignInterceptor implements HandlerInterceptor {
 
 	}
 
-//	private boolean validSign(HttpServletRequest request, Object handler) {
-//		if (needSign(handler)) {
-//			RequestWrapper requestWrapper = new RequestWrapper(request);
-//            String jsonBody = requestWrapper.getBody();
-//            if(StringUtils.isBlank(jsonBody)){
-//            	throw new RuntimeException("缺少签名对象信息");
-//            }
-//            JSONObject jo = JSON.parseObject(jsonBody);
-//            String signId = JSON.parseObject(jo.getString("signId"), String.class);
-//			System.out.println(signId);
-////			XwUserHandleInfo
-////
-//		}
-//		return true;
-//	}
+	private boolean validSign(HttpServletRequest request, Object handler) {
+		if (needSign(handler)) {
+			RequestWrapper requestWrapper = new RequestWrapper(request);
+            String jsonBody = requestWrapper.getBody();
+			String token = request.getHeader("token");
+			if(StringUtils.isBlank(token)){
+            	throw new RuntimeException("缺少签名对象信息");
+            }
+            JSONObject jo = JSON.parseObject(jsonBody);
+			XwSignSo sign = JSON.parseObject(jo.getString("sign"), XwSignSo.class);
+            String signId = sign.getSignId();
+			Claims verify = UserUtil.verify(token);
+			if(!Objects.equals(signId, verify.get("sub"))){
+				return false;
+			}
+
+		}
+		return true;
+	}
 
 	private boolean needSign(Object handler){
 		if (handler instanceof HandlerMethod) {

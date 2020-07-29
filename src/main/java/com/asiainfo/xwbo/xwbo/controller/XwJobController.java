@@ -82,6 +82,7 @@ public class XwJobController {
     }
 
     @RequestMapping("/jobStateInfo")
+    @Sign
     public AjaxResult jobStateInfo(HttpServletRequest request) throws Exception {
 
         return AjaxResult.markSuccess(xwJobService.jobStateInfo());
