@@ -80,19 +80,19 @@ public class XwGroupController {
 
     @RequestMapping("/industryClass")
     @Sign
-    public AjaxResult industryClass() throws Exception {
+    public AjaxResult industryClass(@RequestBody  SignSo signSo) throws Exception {
         return AjaxResult.markSuccess(xwGroupService.industryClass());
     }
 
     @RequestMapping("/managementState")
     @Sign
-    public AjaxResult managementState() throws Exception {
+    public AjaxResult managementState(@RequestBody SignSo signSo) throws Exception {
         return AjaxResult.markSuccess(xwGroupService.managementState());
     }
 
     @RequestMapping("/handleState")
     @Sign
-    public AjaxResult handleState() throws Exception {
+    public AjaxResult handleState(@RequestBody SignSo signSo) throws Exception {
         return AjaxResult.markSuccess(xwGroupService.handleState());
     }
 

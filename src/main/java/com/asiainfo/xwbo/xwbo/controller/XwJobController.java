@@ -2,6 +2,7 @@ package com.asiainfo.xwbo.xwbo.controller;
 
 import com.asiainfo.xwbo.xwbo.model.AjaxResult;
 import com.asiainfo.xwbo.xwbo.model.so.QryJobInfoSo;
+import com.asiainfo.xwbo.xwbo.model.so.SignSo;
 import com.asiainfo.xwbo.xwbo.model.so.SyncXwJobInfoListSo;
 import com.asiainfo.xwbo.xwbo.model.so.SyncXwJobInfoSo;
 import com.asiainfo.xwbo.xwbo.service.XwJobService;
@@ -83,7 +84,7 @@ public class XwJobController {
 
     @RequestMapping("/jobStateInfo")
     @Sign
-    public AjaxResult jobStateInfo(HttpServletRequest request) throws Exception {
+    public AjaxResult jobStateInfo(@RequestBody SignSo signSo, HttpServletRequest request) throws Exception {
 
         return AjaxResult.markSuccess(xwJobService.jobStateInfo());
     }
