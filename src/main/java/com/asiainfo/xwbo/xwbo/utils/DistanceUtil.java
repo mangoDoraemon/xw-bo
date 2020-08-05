@@ -26,7 +26,7 @@ public class DistanceUtil {
         double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
         double gg_lng = z * Math.cos(theta);
         double gg_lat = z * Math.sin(theta);
-        return "http://uri.amap.com/marker?position="+gg_lng+","+gg_lat+"&name=&src=yellowpage&coordinate=gaode&callnative=1";
+        return "https://apis.map.qq.com/uri/v1/geocoder?coord="+gg_lat+","+gg_lng+"&amp;referer=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77";
 
     }
     public static void main(String[] args) {
