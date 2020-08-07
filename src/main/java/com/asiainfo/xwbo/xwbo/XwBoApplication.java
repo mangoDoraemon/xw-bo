@@ -1,5 +1,6 @@
 package com.asiainfo.xwbo.xwbo;
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ public class XwBoApplication {
 
     public static void main(String[] args) {
 
+        ParserConfig.getGlobalInstance().setSafeMode(true);
         SpringApplication.run(XwBoApplication.class, args);
     }
 
